@@ -1,0 +1,254 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "grakovne@yandex.ru",
+    "longName": "SmartFace TimeLine",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/battery_100_inverted.png",
+                "name": "BATTERY_100_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "characterRegex": "[0-9:]",
+                "file": "fonts/bigDigits.ttf",
+                "name": "IMAGINE_BIG_43",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_14",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_43",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9:]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_37",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_17",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_12",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "file": "images/updating_now_inverted.png",
+                "name": "UPDATING_NOW_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/updating_Err_inverted.png",
+                "name": "UPDATING_ERR_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/bluetooth_NO_inverted.png",
+                "name": "BLUETOOTH_NO_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/bluetooth_inverted.png",
+                "name": "BLUETOOTH_YES_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_Full_inverted.png",
+                "name": "BATTERY_FULL_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_90_inverted.png",
+                "name": "BATTERY_90_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_80_inverted.png",
+                "name": "BATTERY_80_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_70_inverted.png",
+                "name": "BATTERY_70_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_60_inverted.png",
+                "name": "BATTERY_60_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_50_inverted.png",
+                "name": "BATTERY_50_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_40_inverted.png",
+                "name": "BATTERY_40_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_30_inverted.png",
+                "name": "BATTERY_30_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_20_inverted.png",
+                "name": "BATTERY_20_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_10_inverted.png",
+                "name": "BATTERY_10_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_0_inverted.png",
+                "name": "BATTERY_0_INVERTED",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/updating_now_normal.png",
+                "name": "UPDATING_NOW_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/updating_Err_normal.png",
+                "name": "UPDATING_ERR_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/bluetooth_normal.png",
+                "name": "BLUETOOTH_YES_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/bluetooth_NO_normal.png",
+                "name": "BLUETOOTH_NO_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_Full_normal.png",
+                "name": "BATTERY_FULL_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_100_normal.png",
+                "name": "BATTERY_100_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_90_normal.png",
+                "name": "BATTERY_90_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_80_normal.png",
+                "name": "BATTERY_80_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_70_normal.png",
+                "name": "BATTERY_70_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_60_normal.png",
+                "name": "BATTERY_60_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_50_normal.png",
+                "name": "BATTERY_50_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_40_normal.png",
+                "name": "BATTERY_40_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_30_normal.png",
+                "name": "BATTERY_30_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_20_normal.png",
+                "name": "BATTERY_20_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_10_normal.png",
+                "name": "BATTERY_10_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_0_normal.png",
+                "name": "BATTERY_0_NORMAL",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "SmartFace TimeLine",
+    "uuid": "4f4a769d-878a-4b80-8871-e2fa018d8bb0",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
