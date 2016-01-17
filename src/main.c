@@ -35,17 +35,21 @@ struct {
 	int night_mode_display_invert;
 	int night_mode_update_info;
 	int night_mode_vibe_on_event;
+	int data_updates_frequency;
 } settings;
 
 struct {
 	int current_window_color;
+	int is_bluetooth_connected;
 } flags;
 
-char top_additional_info_buffer    [36];
-char bottom_additional_info_buffer [36];
-char time_text_buffer              [36];
-char date_text_buffer              [36];
-char battery_text_buffer           [36];
+char top_additional_info_buffer    [24];
+char bottom_additional_info_buffer [24];
+char time_text_buffer              [6];
+char date_text_buffer              [24];
+char battery_text_buffer           [4];
+
+AppTimer* is_receiving_data;
 
 void update_time(struct tm* current_time, TimeUnits units_changed);
 void update_date(struct tm* current_time, TimeUnits units_changed);
@@ -55,7 +59,72 @@ void update_additional_info(void);
 void read_persist_settings(void);
 void initialization(void);
 void deinitialization(void);
+void update_icons(void);
+
 int main(void);
+
+void request_data_error(){
+	gbitmap_destroy(bluetooth_icon); 
+	bluetooth_icon = gbitmap_create_with_resource(updating_icons[flags.current_window_color][1]); 
+	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
+	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+}
+
+void request_data_from_phone(){
+	is_receiving_data = app_timer_register(RECEIVING_LATENCY_TIME, request_data_error, 0);
+	
+	gbitmap_destroy(bluetooth_icon); 
+	bluetooth_icon = gbitmap_create_with_resource(updating_icons[flags.current_window_color][0]); 
+	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
+	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+	
+	// Begin dictionary
+    DictionaryIterator *iter;
+    app_message_outbox_begin(&iter);
+
+    // Add a key-value pair
+    dict_write_uint8(iter, 0, 0);
+
+    // Send the message!
+    app_message_outbox_send();
+		
+	APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
+	
+	/*Сreating the timer again*/
+	app_timer_register(MILLS_IN_HOUR / settings.data_updates_frequency, request_data_from_phone, 0);
+}
+
+static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+	
+ 	Tuple *temp_tuple = dict_find(iterator, LANGUAGE_INFO);
+	APP_LOG(APP_LOG_LEVEL_ERROR, "RECEIVED");
+	
+	gbitmap_destroy(bluetooth_icon); 
+	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
+	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
+	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+	
+	app_timer_cancel(is_receiving_data);
+}
+
+static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+}
+
+static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+}
+
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+}
+
+void update_icons(){
+	gbitmap_destroy(bluetooth_icon); 
+	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
+	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
+	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+}
 
 bool is_night(){
 	if (!settings.night_mode_enabled){
@@ -195,6 +264,13 @@ void read_persist_settings(void){
 		persist_write_int(NIGHT_MODE_VIBE_ON_EVENT_KEY, 1);
 	}
 	
+	if (persist_exists(DATA_UPDATES_FREQUENCY_KEY)){
+		settings.data_updates_frequency = persist_read_int(DATA_UPDATES_FREQUENCY_KEY);
+	} else {
+		settings.data_updates_frequency = 1;
+		persist_write_int(DATA_UPDATES_FREQUENCY_KEY, 1);
+	}
+	
 	if (persist_exists(TOP_ADDITIONAL_STRING_TEXT_KEY)){
 		persist_read_string(TOP_ADDITIONAL_STRING_TEXT_KEY, top_additional_info_buffer, sizeof(top_additional_info_buffer));
 	} else {
@@ -211,17 +287,19 @@ void read_persist_settings(void){
 }
 
 void update_time(struct tm* current_time, TimeUnits units_changed){
+	
 	strftime(time_text_buffer, sizeof(time_text_buffer), "%H:%M", current_time);
 	text_layer_set_text(time_text, time_text_buffer);
-	update_date(current_time, MINUTE_UNIT);
+	
+	update_date(current_time, SECOND_UNIT);
 	
 	if ( (settings.vibe_hourly_vibe == 1) && (!(current_time-> tm_min)) && ( (!is_night() || (settings.night_mode_vibe_on_event))) ){
 		vibes_double_pulse();
 	}
 		
 	settings.night_mode_enabled = 1;
-	settings.night_mode_started = 23*60 + 36;
-	settings.night_mode_finished = 06*60+30;
+	settings.night_mode_started = 22*60 + 3;
+	settings.night_mode_finished = 07*60 + 30;
 		
 	if ( (is_night()) && (settings.night_mode_display_invert) ){
 		flags.current_window_color = !settings.window_color;
@@ -230,6 +308,8 @@ void update_time(struct tm* current_time, TimeUnits units_changed){
 		flags.current_window_color = settings.window_color;
 		set_window_color(settings.window_color);
 	}
+	
+	update_icons();
 }
 
 void update_bluetooth_connection(bool is_connected){
@@ -246,6 +326,8 @@ void update_bluetooth_connection(bool is_connected){
 	} else{
 		text_layer_set_text(bluetooth_text, EMPTY_STRING);
 	}
+	
+	flags.is_bluetooth_connected = is_connected;
 }
 
 void update_battery_state(BatteryChargeState battery_state){
@@ -291,7 +373,7 @@ void initialization(void) {
 	struct tm *current_time;
 	
 	persist_write_int(LANGUAGE_KEY, RUSSIAN_LANGUAGE);
-	persist_write_int(WINDOW_COLOR_KEY, INVERTED_COLOR);
+	persist_write_int(WINDOW_COLOR_KEY, NORMAL_COLOR);
 	persist_write_int(TIME_TEXT_SIZE_KEY, SMALL_TIME_TEXT);
 	persist_write_int(DATE_FORMAT_KEY, DD_MMMM_DATE_FORMAT);
 	persist_write_int(SHOW_BATTERY_TEXT_KEY, 1);
@@ -303,6 +385,7 @@ void initialization(void) {
 	persist_write_int(NIGHT_MODE_ENABLED_KEY, 1);
 	persist_write_int(NIGHT_MODE_STARTED_KEY, 1);
 	persist_write_int(NIGHT_MODE_FINISHED_KEY, 1);
+	persist_write_int(DATA_UPDATES_FREQUENCY_KEY, 10);
 	persist_write_string(TOP_ADDITIONAL_STRING_TEXT_KEY, "Smartface");
 	persist_write_string(BOTTOM_ADDITIONAL_STRING_TEXT_KEY, "timeline");
 	
@@ -315,11 +398,18 @@ void initialization(void) {
 	/*Updateing time and date*/
 	now = time(NULL);
     current_time = localtime(&now);
-    update_time(current_time, SECOND_UNIT);
+    update_time(current_time, MINUTE_UNIT);
 	
-	/*updating bletooth ad battery state*/
-	update_bluetooth_connection(bluetooth_connection_service_peek());
-	update_battery_state(battery_state_service_peek());
+	/*Showing window*/
+	window_stack_push(main_window, true);
+	
+	/*open connection with a phone*/
+	app_message_register_inbox_received(inbox_received_callback);
+	app_message_register_inbox_dropped(inbox_dropped_callback);
+	app_message_register_outbox_failed(outbox_failed_callback);
+	app_message_register_outbox_sent(outbox_sent_callback);
+	app_message_open(64, 64);
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
 	
 	/*updating additional info strings*/
 	update_additional_info();
@@ -329,9 +419,10 @@ void initialization(void) {
 	bluetooth_connection_service_subscribe(update_bluetooth_connection);
 	battery_state_service_subscribe(update_battery_state);
 	
-	/*Showing window*/
-	window_stack_push(main_window, true);
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
+	update_bluetooth_connection(connection_service_peek_pebble_app_connection());
+	update_battery_state(battery_state_service_peek());
+	
+	app_timer_register(5000, request_data_from_phone, 0);
 }
 
 void deinitialization(void) {

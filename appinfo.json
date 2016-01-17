@@ -1,5 +1,7 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "LANGUAGE_INFO": 0
+    },
     "capabilities": [
         ""
     ],

@@ -1,5 +1,9 @@
 #include <pebble.h>
 
+#define MILLS_IN_HOUR               3600000
+
+#define RECEIVING_LATENCY_TIME             30000
+
 #define ENGLISH_LANGUAGE 0
 #define RUSSIAN_LANGUAGE 1
 
@@ -32,6 +36,7 @@
 #define NIGHT_MODE_DISPLAY_INVERT_KEY      15
 #define NIGHT_MODE_UPDATE_INFO_KEY         16
 #define NIGHT_MODE_VIBE_ON_EVENT_KEY       17
+#define DATA_UPDATES_FREQUENCY_KEY         18
 
 static const uint32_t battery_icons[2][12] = {
 	{
@@ -61,6 +66,17 @@ static const uint32_t battery_icons[2][12] = {
 		RESOURCE_ID_BATTERY_90_INVERTED,
 		RESOURCE_ID_BATTERY_100_INVERTED,
 		RESOURCE_ID_BATTERY_FULL_INVERTED
+	}
+};
+
+static const uint32_t updating_icons[2][2] = {
+	{
+		RESOURCE_ID_UPDATING_NOW_NORMAL,
+		RESOURCE_ID_UPDATING_ERR_NORMAL
+	},
+	{
+		RESOURCE_ID_UPDATING_NOW_INVERTED,
+		RESOURCE_ID_UPDATING_ERR_INVERTED
 	}
 };
 
@@ -143,3 +159,27 @@ static const char bluetooth_states_names[2][2][7] = {
 		"OK"
 	}
 };
+
+
+enum {
+	LANGUAGE_INFO                         = 0,
+	WINDOW_COLOR_INFO                     = 1,
+	TIME_TEXT_SIZE_INFO                   = 2,
+	DATE_FORMAT_INFO                      = 3,
+	SHOW_BATTERY_TEXT_INFO                = 4,
+	SHOW_BLUETOOTH_TEXT_INFO              = 5,
+	SHOP_TOP_ADDITIONAL_INFO_INFO         = 6,
+	SHOW_BOTTOM_ADDITIONAL_INFO_INFO      = 7,
+	VIBE_HOURLY_VIBE_INFO                 = 8,
+	VIBE_BLUETOOTH_STATE_CHANGE_INFO      = 9,
+	NIGHT_MODE_ENABLED_INFO               = 10,
+	NIGHT_MODE_STARTED_INFO               = 11,
+	NIGTH_MODE_FINISHED_INFO              = 12,
+	TOP_ADDITIONAL_STRING_TEXT_INFO       = 13,
+	BOTTOM_ADDITIONAL_STRING_TEXT_INFO    = 14,
+	NIGTH_MODE_DISPLAY_INVERT_INFO        = 15,
+	NIGHT_MODE_UPDATE_INFO_INFO           = 16,
+	NIGTH_MODE_VIBE_ON_EVENT_INFO         = 17,
+	DATA_UPDATES_FREQUENCY_INFO			  = 18
+};
+
