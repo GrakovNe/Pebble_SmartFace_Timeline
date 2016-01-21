@@ -1,9 +1,26 @@
 {
     "appKeys": {
-        "LANGUAGE_INFO": 0
+        "BOTTOM_ADDITIONAL_STRING_TEXT_INFO": 12,
+        "DATA_UPDATE_FREQUENCY_INFO": 16,
+        "DATE_FORMAT_INFO": 3,
+        "LANGUAGE_INFO": 0,
+        "NIGHT_MODE_ENABLED_INFO": 8,
+        "NIGHT_MODE_HOURLY_VIBE_INFO": 17,
+        "NIGHT_MODE_STARTED_INFO": 9,
+        "NIGHT_MODE_UPDATE_INFO_INFO": 14,
+        "NIGTH_MODE_DISPLAY_INVERT_INFO": 13,
+        "NIGTH_MODE_FINISHED_INFO": 10,
+        "NIGTH_MODE_VIBE_ON_EVENT_INFO": 15,
+        "SHOW_BATTERY_TEXT_INFO": 4,
+        "SHOW_BLUETOOTH_TEXT_INFO": 5,
+        "TIME_TEXT_SIZE_INFO": 2,
+        "TOP_ADDITIONAL_STRING_TEXT_INFO": 11,
+        "VIBE_BLUETOOTH_STATE_CHANGE_INFO": 7,
+        "VIBE_HOURLY_VIBE_INFO": 6,
+        "WINDOW_COLOR_INFO": 1
     },
     "capabilities": [
-        ""
+        "configurable"
     ],
     "companyName": "grakovne@yandex.ru",
     "longName": "SmartFace TimeLine",

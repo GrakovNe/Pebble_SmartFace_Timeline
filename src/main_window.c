@@ -31,14 +31,10 @@ GColor foreground_color;
 GColor background_color;
 
 void create_icons(int window_color){
-	bluetooth_icon = gbitmap_create_with_resource(RESOURCE_ID_BLUETOOTH_YES_NORMAL);
 	bluetooth_icon_layer = bitmap_layer_create(GRect(0, 2, 16, 16));
-	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
   	layer_add_child(window_get_root_layer(main_window), bitmap_layer_get_layer(bluetooth_icon_layer));
 	
-	battery_icon = gbitmap_create_with_resource(RESOURCE_ID_BATTERY_100_NORMAL);
 	battery_icon_layer = bitmap_layer_create(GRect(127, 2, 16, 16));
-	bitmap_layer_set_bitmap(battery_icon_layer, battery_icon);
   	layer_add_child(window_get_root_layer(main_window), bitmap_layer_get_layer(battery_icon_layer));
 }
 
@@ -50,7 +46,6 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_font(battery_text, battery_text_font);
 	text_layer_set_background_color(battery_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(battery_text));	
-	text_layer_set_text(battery_text, "100%");
 	
 	/*bluetooth text*/
 	bluetooth_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_12));
@@ -59,7 +54,6 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_font(bluetooth_text, bluetooth_text_font);
 	text_layer_set_background_color(bluetooth_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(bluetooth_text));
-	text_layer_set_text(bluetooth_text, "OK");
 	
 	/*weekday name*/
 	weekday_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_17));
@@ -73,7 +67,6 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_font(weekday_text, weekday_text_font);
 	text_layer_set_background_color(weekday_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(weekday_text));
-	text_layer_set_text(weekday_text, "THUESDAY");
 	
 	/*time text*/
 	if (text_size == BIG_TIME_TEXT){	// large font 
@@ -94,7 +87,6 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_font(time_text, time_text_font);
 	text_layer_set_background_color(time_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(time_text));
-	text_layer_set_text(time_text, "13:31");
 	
 	/*current date*/
 	if (text_size == BIG_TIME_TEXT){
@@ -108,7 +100,6 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_font(date_text, date_text_font);
 	text_layer_set_background_color(date_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(date_text));
-	text_layer_set_text(date_text, "15.01.2016");
 	
 	/*top additional string*/
 	top_additional_info_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_14));
@@ -117,7 +108,6 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_font(top_additional_info_text, top_additional_info_text_font);
 	text_layer_set_background_color(top_additional_info_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(top_additional_info_text));
-	text_layer_set_text(top_additional_info_text, "smartface");
 	
 	/*bottom additional string*/
 	bottom_additional_info_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_14));
@@ -126,9 +116,6 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_font(bottom_additional_info_text, bottom_additional_info_text_font);
 	text_layer_set_background_color(bottom_additional_info_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(bottom_additional_info_text));
-	text_layer_set_text(bottom_additional_info_text, "TIMELINE");
-	
-	
 }
 
 void create_window(int text_size, int window_color){
@@ -165,6 +152,21 @@ void set_window_color(int window_color){
 	text_layer_set_text_color(bottom_additional_info_text, foreground_color);
 }
 
+void destroy_window(){
+	text_layer_destroy(bluetooth_text);
+	text_layer_destroy(battery_text);
+	text_layer_destroy(date_text);
+	text_layer_destroy(time_text);
+	text_layer_destroy(weekday_text);
+	text_layer_destroy(top_additional_info_text);
+	text_layer_destroy(bottom_additional_info_text);
+	gbitmap_destroy(bluetooth_icon); 
+	gbitmap_destroy(battery_icon); 
+	bitmap_layer_destroy(bluetooth_icon_layer);
+	bitmap_layer_destroy(battery_icon_layer);
+
+	window_destroy(main_window);
+}
 
 
 

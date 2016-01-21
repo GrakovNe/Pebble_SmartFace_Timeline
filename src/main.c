@@ -25,8 +25,6 @@ struct {
 	int date_format;
 	int show_battery_text;
 	int show_bluetooth_text;
-	int show_top_additional_info;
-	int show_bottom_additional_info;
 	int vibe_hourly_vibe;
 	int vibe_bluetooth_state_change;
 	int night_mode_enabled;
@@ -35,6 +33,7 @@ struct {
 	int night_mode_display_invert;
 	int night_mode_update_info;
 	int night_mode_vibe_on_event;
+	int night_mode_vibe_hourly_vibe;
 	int data_updates_frequency;
 } settings;
 
@@ -43,8 +42,8 @@ struct {
 	int is_bluetooth_connected;
 } flags;
 
-char top_additional_info_buffer    [24];
-char bottom_additional_info_buffer [24];
+char top_additional_info_buffer    [48];
+char bottom_additional_info_buffer [48];
 char time_text_buffer              [6];
 char date_text_buffer              [24];
 char battery_text_buffer           [4];
@@ -60,6 +59,8 @@ void read_persist_settings(void);
 void initialization(void);
 void deinitialization(void);
 void update_icons(void);
+void update_bluetooth_text(void);
+bool is_night(void);
 
 int main(void);
 
@@ -71,52 +72,168 @@ void request_data_error(){
 }
 
 void request_data_from_phone(){
-	is_receiving_data = app_timer_register(RECEIVING_LATENCY_TIME, request_data_error, 0);
+	if (!(is_night() && (settings.night_mode_update_info))){
+		is_receiving_data = app_timer_register(RECEIVING_LATENCY_TIME, request_data_error, 0);
 	
-	gbitmap_destroy(bluetooth_icon); 
-	bluetooth_icon = gbitmap_create_with_resource(updating_icons[flags.current_window_color][0]); 
-	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
-	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+		gbitmap_destroy(bluetooth_icon); 
+		bluetooth_icon = gbitmap_create_with_resource(updating_icons[flags.current_window_color][0]); 
+		bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
+		layer_mark_dirty((Layer *)bluetooth_icon_layer);
 	
-	// Begin dictionary
-    DictionaryIterator *iter;
-    app_message_outbox_begin(&iter);
+		// Begin dictionary
+    	DictionaryIterator *iter;
+    	app_message_outbox_begin(&iter);
 
-    // Add a key-value pair
-    dict_write_uint8(iter, 0, 0);
+    	// Add a key-value pair
+    	dict_write_uint8(iter, 0, 0);
 
-    // Send the message!
-    app_message_outbox_send();
+    	// Send the message!
+    	app_message_outbox_send();
 		
-	APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
-	
+		//APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
+	}
 	/*Сreating the timer again*/
 	app_timer_register(MILLS_IN_HOUR / settings.data_updates_frequency, request_data_from_phone, 0);
+	//app_timer_register(10000, request_data_from_phone, 0);
 }
 
-static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+static void inbox_received_callback(DictionaryIterator *iterator, void *context) {	
+ 	Tuple *language_tuple = dict_find(iterator, LANGUAGE_INFO);
+	Tuple *window_color_tuple = dict_find(iterator, WINDOW_COLOR_INFO);
+	Tuple *time_text_size_tuple = dict_find(iterator, TIME_TEXT_SIZE_INFO);
+	Tuple *date_format_tuple_tuple = dict_find(iterator, DATE_FORMAT_INFO);
+	Tuple *show_battery_text_tuple = dict_find(iterator, SHOW_BATTERY_TEXT_INFO);
+	Tuple *show_bluetooth_text_tuple = dict_find(iterator, SHOW_BLUETOOTH_TEXT_INFO);
+	Tuple *vibe_hourly_vibe_tuple = dict_find(iterator, VIBE_HOURLY_VIBE_INFO);
+	Tuple *vibe_bluetooth_state_change_tuple = dict_find(iterator, VIBE_BLUETOOTH_STATE_CHANGE_INFO);
+	Tuple *night_mode_enabled_tuple = dict_find(iterator, NIGHT_MODE_ENABLED_INFO);
+	Tuple *night_mode_started_tuple = dict_find(iterator, NIGHT_MODE_STARTED_INFO);
+	Tuple *night_mode_finished_tuple = dict_find(iterator, NIGTH_MODE_FINISHED_INFO);
+	Tuple *night_mode_vibe_hourly_vibe_tuple = dict_find(iterator, NIGHT_MODE_HOURLY_VIBE_INFO);
+	Tuple *top_additional_string_text_tuple = dict_find(iterator, TOP_ADDITIONAL_STRING_TEXT_INFO);
+	Tuple *bottom_additional_string_text_tuple = dict_find(iterator, BOTTOM_ADDITIONAL_STRING_TEXT_INFO);
+	Tuple *night_mode_display_invert_tuple = dict_find(iterator, NIGTH_MODE_DISPLAY_INVERT_INFO);
+	Tuple *night_mode_update_info_tuple = dict_find(iterator, NIGHT_MODE_UPDATE_INFO_INFO);
+	Tuple *night_mode_vibe_on_event_tuple= dict_find(iterator, NIGTH_MODE_VIBE_ON_EVENT_INFO);
+	Tuple *data_updates_frequency_tuple = dict_find(iterator, DATA_UPDATE_FREQUENCY_INFO);
 	
- 	Tuple *temp_tuple = dict_find(iterator, LANGUAGE_INFO);
-	APP_LOG(APP_LOG_LEVEL_ERROR, "RECEIVED");
+	if (top_additional_string_text_tuple){
+		strcpy(top_additional_info_buffer, top_additional_string_text_tuple->value->cstring);
+		persist_write_string(TOP_ADDITIONAL_STRING_TEXT_KEY, top_additional_info_buffer);
+		text_layer_set_text(top_additional_info_text, top_additional_info_buffer);
+		//APP_LOG(APP_LOG_LEVEL_INFO, "top additional info received!");
+	}
 	
-	gbitmap_destroy(bluetooth_icon); 
-	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
-	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
-	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+	if (bottom_additional_string_text_tuple){
+		strcpy(bottom_additional_info_buffer, bottom_additional_string_text_tuple->value->cstring);
+		persist_write_string(BOTTOM_ADDITIONAL_STRING_TEXT_KEY, bottom_additional_info_buffer);
+		text_layer_set_text(bottom_additional_info_text, bottom_additional_info_buffer);
+		//APP_LOG(APP_LOG_LEVEL_INFO, "bottom additional info received!");
+	}
+	
+	if (data_updates_frequency_tuple){
+		persist_write_int(NIGHT_MODE_VIBE_ON_EVENT_KEY, (int)data_updates_frequency_tuple->value->int32);
+		settings.data_updates_frequency = (int)data_updates_frequency_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "data update frequency settings received!");
+	}
+	
+	if (night_mode_vibe_hourly_vibe_tuple){
+		persist_write_int(NIGHT_MODE_VIBE_HOURLY_VIBE_KEY, (int)night_mode_vibe_hourly_vibe_tuple->value->int32);
+		settings.night_mode_vibe_hourly_vibe = (int)night_mode_vibe_hourly_vibe_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode vibrations settings received!");
+	}
+	
+	if (night_mode_vibe_on_event_tuple){
+		persist_write_int(NIGHT_MODE_VIBE_ON_EVENT_KEY, (int)night_mode_vibe_on_event_tuple->value->int32);
+		settings.night_mode_vibe_on_event = (int)night_mode_vibe_on_event_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode vibrations settings received!");
+	}
+	
+	if (night_mode_update_info_tuple){
+		persist_write_int(NIGHT_MODE_UPDATE_INFO_KEY, (int)night_mode_update_info_tuple->value->int32);
+		settings.night_mode_update_info = (int)night_mode_update_info_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode update info settings received!");
+	}
+	
+	if (night_mode_display_invert_tuple){
+		persist_write_int(NIGHT_MODE_DISPLAY_INVERT_KEY, (int)night_mode_display_invert_tuple->value->int32);
+		settings.night_mode_display_invert = (int)night_mode_display_invert_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode display invert settings received!");
+	}
+	
+	if (night_mode_finished_tuple){
+		persist_write_int(NIGHT_MODE_FINISHED_KEY, (int)night_mode_finished_tuple->value->int32);
+		settings.night_mode_finished = (int)night_mode_finished_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode finished settings received!");
+	}
+	
+	if (night_mode_started_tuple){
+		persist_write_int(NIGHT_MODE_STARTED_KEY, (int)night_mode_started_tuple->value->int32);
+		settings.night_mode_started = (int)night_mode_started_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode started settings received!");
+	}
+	
+	if (night_mode_enabled_tuple){
+		persist_write_int(NIGHT_MODE_ENABLED_KEY, (int)night_mode_enabled_tuple->value->int32);
+		settings.night_mode_enabled = (int)night_mode_enabled_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode enabled settings received!");
+	}
+	
+	if (vibe_bluetooth_state_change_tuple){
+		persist_write_int(VIBE_BLUETOOTH_STATE_CHANGE_KEY, (int)vibe_bluetooth_state_change_tuple->value->int32);
+		//APP_LOG(APP_LOG_LEVEL_INFO, "bluetooth vibration settings received!");
+	}
+	
+	if (vibe_hourly_vibe_tuple){
+		persist_write_int(VIBE_HOURLY_VIBE_KEY, (int)vibe_hourly_vibe_tuple->value->int32);
+		settings.vibe_hourly_vibe = (int)vibe_hourly_vibe_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "hourly vibration settings received!");
+	}
+	
+	if (show_bluetooth_text_tuple){
+		persist_write_int(SHOW_BLUETOOTH_TEXT_KEY, (int)show_bluetooth_text_tuple->value->int32);
+		settings.show_bluetooth_text = (int)show_bluetooth_text_tuple->value->int32;
+		update_bluetooth_connection(connection_service_peek_pebble_app_connection());
+		//APP_LOG(APP_LOG_LEVEL_INFO, "bluetooth text settings received!");
+	}
+	
+	if (show_battery_text_tuple){
+		persist_write_int(SHOW_BATTERY_TEXT_KEY, (int)show_battery_text_tuple->value->int32);
+		settings.show_battery_text = (int)show_battery_text_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "battery text settings received!");
+	}
+	
+	if (date_format_tuple_tuple){
+		persist_write_int(DATE_FORMAT_KEY, (int)date_format_tuple_tuple->value->int32);
+		settings.date_format = (int)date_format_tuple_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "date format settings received!");
+	}
+	
+	if (time_text_size_tuple){
+		persist_write_int(TIME_TEXT_SIZE_KEY, (int)time_text_size_tuple->value->int32);
+		settings.time_text_size = (int)time_text_size_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "text size settings received!");
+	}
+	
+	if (window_color_tuple){
+		persist_write_int(WINDOW_COLOR_KEY, (int)window_color_tuple->value->int32);
+		settings.window_color = (int)window_color_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "window color settings received!");
+	}
+	
+	if (language_tuple){
+		persist_write_int(LANGUAGE_KEY, (int)language_tuple->value->int32);
+		settings.language = (int)language_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "language settings received!");
+	}
 	
 	app_timer_cancel(is_receiving_data);
-}
-
-static void inbox_dropped_callback(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
-}
-
-static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
-}
-
-static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+	time_t now = time(NULL);
+	update_time(localtime(&now), SECOND_UNIT);
+	update_battery_state(battery_state_service_peek());
+	update_icons();
+	update_bluetooth_text();
+	set_window_color(flags.current_window_color);
 }
 
 void update_icons(){
@@ -151,103 +268,77 @@ bool is_night(){
 	return false;	
 }
 
-void read_persist_settings(void){
+void read_persist_settings(){
 	if (persist_exists(LANGUAGE_KEY)){
 		settings.language = persist_read_int(LANGUAGE_KEY);
 	} else {
 		settings.language = ENGLISH_LANGUAGE;
-		persist_write_int(LANGUAGE_KEY, ENGLISH_LANGUAGE);
 	}
 	
 	if (persist_exists(WINDOW_COLOR_KEY)){
 		settings.window_color = persist_read_int(WINDOW_COLOR_KEY);
 	} else {
 		settings.window_color = NORMAL_COLOR;
-		persist_write_int(WINDOW_COLOR_KEY, NORMAL_COLOR);
 	}
 	
 	if (persist_exists(TIME_TEXT_SIZE_KEY)){
 		settings.time_text_size = persist_read_int(TIME_TEXT_SIZE_KEY);
 	} else {
 		settings.time_text_size = SMALL_TIME_TEXT;
-		persist_write_int(TIME_TEXT_SIZE_KEY, SMALL_TIME_TEXT);
 	}
 	
 	if (persist_exists(DATE_FORMAT_KEY)){
 		settings.date_format = persist_read_int(DATE_FORMAT_KEY);
 	} else {
 		settings.date_format = DD_MMMM_DATE_FORMAT;
-		persist_write_int(DATE_FORMAT_KEY, DD_MMMM_DATE_FORMAT);
 	}
 	
 	if (persist_exists(SHOW_BATTERY_TEXT_KEY)){
 		settings.show_battery_text = persist_read_int(SHOW_BATTERY_TEXT_KEY);
 	} else {
 		settings.show_battery_text = 1;
-		persist_write_int(SHOW_BATTERY_TEXT_KEY, 1);
 	}
 	
 	if (persist_exists(SHOW_BLUETOOTH_TEXT_KEY)){
 		settings.show_bluetooth_text = persist_read_int(SHOW_BLUETOOTH_TEXT_KEY);
 	} else {
 		settings.show_bluetooth_text = 1;
-		persist_write_int(SHOW_BLUETOOTH_TEXT_KEY, 1);
-	}
-	
-	if (persist_exists(SHOW_TOP_ADDITIONAL_INFO_KEY)){
-		settings.show_top_additional_info = persist_read_int(SHOW_TOP_ADDITIONAL_INFO_KEY);
-	} else {
-		settings.show_top_additional_info = 1;
-		persist_write_int(SHOW_TOP_ADDITIONAL_INFO_KEY, 1);
-	}
-	
-	if (persist_exists(SHOW_BOTTOM_ADDITIONAL_INFO_KEY)){
-		settings.show_bottom_additional_info = persist_read_int(SHOW_BOTTOM_ADDITIONAL_INFO_KEY);
-	} else {
-		settings.show_bottom_additional_info = 1;
-		persist_write_int(SHOW_BOTTOM_ADDITIONAL_INFO_KEY, 1);
 	}
 	
 	if (persist_exists(VIBE_HOURLY_VIBE_KEY)){
 		settings.vibe_hourly_vibe = persist_read_int(VIBE_HOURLY_VIBE_KEY);
 	} else {
 		settings.vibe_hourly_vibe = 1;
-		persist_write_int(VIBE_HOURLY_VIBE_KEY, 1);
 	}
 	
 	if (persist_exists(VIBE_BLUETOOTH_STATE_CHANGE_KEY)){
 		settings.vibe_bluetooth_state_change = persist_read_int(VIBE_BLUETOOTH_STATE_CHANGE_KEY);
 	} else {
 		settings.vibe_bluetooth_state_change = 1;
-		persist_write_int(VIBE_BLUETOOTH_STATE_CHANGE_KEY, 1);
 	}
 	
 	if (persist_exists(NIGHT_MODE_ENABLED_KEY)){
 		settings.night_mode_enabled = persist_read_int(NIGHT_MODE_ENABLED_KEY);
 	} else {
 		settings.night_mode_enabled = 1;
-		persist_write_int(NIGHT_MODE_ENABLED_KEY, 1);
 	}
 		
 	if (persist_exists(NIGHT_MODE_STARTED_KEY)){
 		settings.night_mode_started = persist_read_int(NIGHT_MODE_STARTED_KEY);
 	} else {
 		settings.night_mode_started = 1;
-		persist_write_int(NIGHT_MODE_STARTED_KEY, 1);
 	}
 		
 	if (persist_exists(NIGHT_MODE_FINISHED_KEY)){
 		settings.night_mode_finished = persist_read_int(NIGHT_MODE_FINISHED_KEY);
 	} else {
 		settings.night_mode_finished = 1;
-		persist_write_int(NIGHT_MODE_FINISHED_KEY, 1);
 	}
 	
 	if (persist_exists(NIGHT_MODE_DISPLAY_INVERT_KEY)){
 		settings.night_mode_display_invert = persist_read_int(NIGHT_MODE_DISPLAY_INVERT_KEY);
 	} else {
 		settings.night_mode_display_invert = 1;
-		persist_write_int(NIGHT_MODE_DISPLAY_INVERT_KEY, 1);
 	}
 	
 	if (persist_exists(NIGHT_MODE_UPDATE_INFO_KEY)){
@@ -261,46 +352,44 @@ void read_persist_settings(void){
 		settings.night_mode_vibe_on_event = persist_read_int(NIGHT_MODE_VIBE_ON_EVENT_KEY);
 	} else {
 		settings.night_mode_vibe_on_event = 1;
-		persist_write_int(NIGHT_MODE_VIBE_ON_EVENT_KEY, 1);
+	}
+	
+	if (persist_exists(NIGHT_MODE_VIBE_HOURLY_VIBE_KEY)){
+		settings.night_mode_vibe_hourly_vibe = persist_read_int(NIGHT_MODE_VIBE_HOURLY_VIBE_KEY);
+	} else {
+		settings.night_mode_vibe_hourly_vibe = 1;
 	}
 	
 	if (persist_exists(DATA_UPDATES_FREQUENCY_KEY)){
 		settings.data_updates_frequency = persist_read_int(DATA_UPDATES_FREQUENCY_KEY);
 	} else {
 		settings.data_updates_frequency = 1;
-		persist_write_int(DATA_UPDATES_FREQUENCY_KEY, 1);
 	}
 	
 	if (persist_exists(TOP_ADDITIONAL_STRING_TEXT_KEY)){
 		persist_read_string(TOP_ADDITIONAL_STRING_TEXT_KEY, top_additional_info_buffer, sizeof(top_additional_info_buffer));
+		APP_LOG(APP_LOG_LEVEL_DEBUG, top_additional_info_buffer);
 	} else {
 		strcpy(top_additional_info_buffer, "Smartface 0.1");
-		persist_write_string(TOP_ADDITIONAL_STRING_TEXT_KEY, "Smartface 0.1");
 	}
 		
 	if (persist_exists(BOTTOM_ADDITIONAL_STRING_TEXT_KEY)){
 		persist_read_string(BOTTOM_ADDITIONAL_STRING_TEXT_KEY, bottom_additional_info_buffer, sizeof(bottom_additional_info_buffer));
 	} else {
 		strcpy(bottom_additional_info_buffer, "for timeline");
-		persist_write_string(BOTTOM_ADDITIONAL_STRING_TEXT_KEY, "for timeline");
 	}
 }
 
 void update_time(struct tm* current_time, TimeUnits units_changed){
-	
 	strftime(time_text_buffer, sizeof(time_text_buffer), "%H:%M", current_time);
 	text_layer_set_text(time_text, time_text_buffer);
 	
 	update_date(current_time, SECOND_UNIT);
 	
-	if ( (settings.vibe_hourly_vibe == 1) && (!(current_time-> tm_min)) && ( (!is_night() || (settings.night_mode_vibe_on_event))) ){
+	if ( (settings.vibe_hourly_vibe == 1) && !(current_time-> tm_min) && !(is_night() && (settings.night_mode_vibe_hourly_vibe)) ){
 		vibes_double_pulse();
 	}
-		
-	settings.night_mode_enabled = 1;
-	settings.night_mode_started = 22*60 + 3;
-	settings.night_mode_finished = 07*60 + 30;
-		
+			
 	if ( (is_night()) && (settings.night_mode_display_invert) ){
 		flags.current_window_color = !settings.window_color;
 		set_window_color(!settings.window_color);
@@ -312,22 +401,22 @@ void update_time(struct tm* current_time, TimeUnits units_changed){
 	update_icons();
 }
 
-void update_bluetooth_connection(bool is_connected){
-	if (settings.vibe_bluetooth_state_change){
-		vibes_long_pulse();
-	}
-	
-	gbitmap_destroy(bluetooth_icon); 
-	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][is_connected]); 
-	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
-	
+void update_bluetooth_text(){
 	if (settings.show_bluetooth_text){
-		text_layer_set_text(bluetooth_text, bluetooth_states_names[settings.language][is_connected]);
+		text_layer_set_text(bluetooth_text, bluetooth_states_names[settings.language][flags.is_bluetooth_connected]);
 	} else{
 		text_layer_set_text(bluetooth_text, EMPTY_STRING);
 	}
-	
+}
+
+void update_bluetooth_connection(bool is_connected){
+	if (settings.vibe_bluetooth_state_change && !(is_night() && (settings.night_mode_vibe_on_event))){
+		vibes_long_pulse();
+	}
+		
 	flags.is_bluetooth_connected = is_connected;
+	update_bluetooth_text();
+	update_icons();
 }
 
 void update_battery_state(BatteryChargeState battery_state){
@@ -369,65 +458,39 @@ void update_additional_info(){
 }
 
 void initialization(void) {
-	time_t now;
-	struct tm *current_time;
-	
-	persist_write_int(LANGUAGE_KEY, RUSSIAN_LANGUAGE);
-	persist_write_int(WINDOW_COLOR_KEY, NORMAL_COLOR);
-	persist_write_int(TIME_TEXT_SIZE_KEY, SMALL_TIME_TEXT);
-	persist_write_int(DATE_FORMAT_KEY, DD_MMMM_DATE_FORMAT);
-	persist_write_int(SHOW_BATTERY_TEXT_KEY, 1);
-	persist_write_int(SHOW_BLUETOOTH_TEXT_KEY, 1);
-	persist_write_int(SHOW_TOP_ADDITIONAL_INFO_KEY, 1);
-	persist_write_int(SHOW_BOTTOM_ADDITIONAL_INFO_KEY, 1);
-	persist_write_int(VIBE_HOURLY_VIBE_KEY, 1);
-	persist_write_int(VIBE_BLUETOOTH_STATE_CHANGE_KEY, 1);
-	persist_write_int(NIGHT_MODE_ENABLED_KEY, 1);
-	persist_write_int(NIGHT_MODE_STARTED_KEY, 1);
-	persist_write_int(NIGHT_MODE_FINISHED_KEY, 1);
-	persist_write_int(DATA_UPDATES_FREQUENCY_KEY, 10);
-	persist_write_string(TOP_ADDITIONAL_STRING_TEXT_KEY, "Smartface");
-	persist_write_string(BOTTOM_ADDITIONAL_STRING_TEXT_KEY, "timeline");
-	
 	/*Reading settings*/
 	read_persist_settings();
-
+	
 	/*Creating main window*/
 	create_window(settings.time_text_size, settings.window_color);
 	
 	/*Updateing time and date*/
-	now = time(NULL);
-    current_time = localtime(&now);
-    update_time(current_time, MINUTE_UNIT);
+	time_t now;
+    update_time(localtime(&now), SECOND_UNIT);
 	
-	/*Showing window*/
+	/*Showing main window*/
 	window_stack_push(main_window, true);
 	
-	/*open connection with a phone*/
-	app_message_register_inbox_received(inbox_received_callback);
-	app_message_register_inbox_dropped(inbox_dropped_callback);
-	app_message_register_outbox_failed(outbox_failed_callback);
-	app_message_register_outbox_sent(outbox_sent_callback);
-	app_message_open(64, 64);
-	APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
-	
-	/*updating additional info strings*/
+	/*Showing window and updating info*/
+	update_bluetooth_connection(connection_service_peek_pebble_app_connection());
+	update_battery_state(battery_state_service_peek());
 	update_additional_info();
 	
 	/*Subscribing for a timers and events*/
 	tick_timer_service_subscribe(MINUTE_UNIT, &update_time);
 	bluetooth_connection_service_subscribe(update_bluetooth_connection);
 	battery_state_service_subscribe(update_battery_state);
+		
+	app_timer_register(2000, request_data_from_phone, 0);
 	
-	update_bluetooth_connection(connection_service_peek_pebble_app_connection());
-	update_battery_state(battery_state_service_peek());
-	
-	app_timer_register(5000, request_data_from_phone, 0);
+	/*open connection with a phone*/
+	app_message_register_inbox_received(inbox_received_callback);
+	app_message_open(256, 16);
+	//APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
 }
 
 void deinitialization(void) {
-	text_layer_destroy(text_layer);
-	window_destroy(main_window);
+	destroy_window();
 }
 
 int main(void) {

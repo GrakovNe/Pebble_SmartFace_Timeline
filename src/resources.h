@@ -37,6 +37,7 @@
 #define NIGHT_MODE_UPDATE_INFO_KEY         16
 #define NIGHT_MODE_VIBE_ON_EVENT_KEY       17
 #define DATA_UPDATES_FREQUENCY_KEY         18
+#define NIGHT_MODE_VIBE_HOURLY_VIBE_KEY    19
 
 static const uint32_t battery_icons[2][12] = {
 	{
@@ -160,7 +161,6 @@ static const char bluetooth_states_names[2][2][7] = {
 	}
 };
 
-
 enum {
 	LANGUAGE_INFO                         = 0,
 	WINDOW_COLOR_INFO                     = 1,
@@ -168,18 +168,17 @@ enum {
 	DATE_FORMAT_INFO                      = 3,
 	SHOW_BATTERY_TEXT_INFO                = 4,
 	SHOW_BLUETOOTH_TEXT_INFO              = 5,
-	SHOP_TOP_ADDITIONAL_INFO_INFO         = 6,
-	SHOW_BOTTOM_ADDITIONAL_INFO_INFO      = 7,
-	VIBE_HOURLY_VIBE_INFO                 = 8,
-	VIBE_BLUETOOTH_STATE_CHANGE_INFO      = 9,
-	NIGHT_MODE_ENABLED_INFO               = 10,
-	NIGHT_MODE_STARTED_INFO               = 11,
-	NIGTH_MODE_FINISHED_INFO              = 12,
-	TOP_ADDITIONAL_STRING_TEXT_INFO       = 13,
-	BOTTOM_ADDITIONAL_STRING_TEXT_INFO    = 14,
-	NIGTH_MODE_DISPLAY_INVERT_INFO        = 15,
-	NIGHT_MODE_UPDATE_INFO_INFO           = 16,
-	NIGTH_MODE_VIBE_ON_EVENT_INFO         = 17,
-	DATA_UPDATES_FREQUENCY_INFO			  = 18
+	VIBE_HOURLY_VIBE_INFO                 = 6,
+	VIBE_BLUETOOTH_STATE_CHANGE_INFO      = 7,
+	NIGHT_MODE_ENABLED_INFO               = 8,
+	NIGHT_MODE_STARTED_INFO               = 9,
+	NIGTH_MODE_FINISHED_INFO              = 10,
+	TOP_ADDITIONAL_STRING_TEXT_INFO       = 11,
+	BOTTOM_ADDITIONAL_STRING_TEXT_INFO    = 12,
+	NIGTH_MODE_DISPLAY_INVERT_INFO        = 13,
+	NIGHT_MODE_UPDATE_INFO_INFO           = 14,
+	NIGTH_MODE_VIBE_ON_EVENT_INFO         = 15,
+	DATA_UPDATE_FREQUENCY_INFO			  = 16,
+	NIGHT_MODE_HOURLY_VIBE_INFO           = 17
 };
 
