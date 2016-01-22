@@ -40,6 +40,7 @@ struct {
 struct {
 	int current_window_color;
 	int is_bluetooth_connected;
+	int vibes_allowed;
 } flags;
 
 char top_additional_info_buffer    [48];
@@ -50,6 +51,8 @@ char battery_text_buffer           [4];
 
 AppTimer* is_receiving_data;
 
+time_t now;
+
 void update_time(struct tm* current_time, TimeUnits units_changed);
 void update_date(struct tm* current_time, TimeUnits units_changed);
 void update_bluetooth_connection(bool is_connected);
@@ -59,6 +62,7 @@ void read_persist_settings(void);
 void initialization(void);
 void deinitialization(void);
 void update_icons(void);
+void update_bluetooth_text(void);
 void update_bluetooth_text(void);
 bool is_night(void);
 
@@ -72,7 +76,7 @@ void request_data_error(){
 }
 
 void request_data_from_phone(){
-	if (!(is_night() && (settings.night_mode_update_info))){
+	if (!is_night() || settings.night_mode_update_info){
 		is_receiving_data = app_timer_register(RECEIVING_LATENCY_TIME, request_data_error, 0);
 	
 		gbitmap_destroy(bluetooth_icon); 
@@ -90,7 +94,7 @@ void request_data_from_phone(){
     	// Send the message!
     	app_message_outbox_send();
 		
-		//APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
+		APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
 	}
 	/*Сreating the timer again*/
 	app_timer_register(MILLS_IN_HOUR / settings.data_updates_frequency, request_data_from_phone, 0);
@@ -140,7 +144,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	if (night_mode_vibe_hourly_vibe_tuple){
 		persist_write_int(NIGHT_MODE_VIBE_HOURLY_VIBE_KEY, (int)night_mode_vibe_hourly_vibe_tuple->value->int32);
 		settings.night_mode_vibe_hourly_vibe = (int)night_mode_vibe_hourly_vibe_tuple->value->int32;
-		//APP_LOG(APP_LOG_LEVEL_INFO, "night mode vibrations settings received!");
 	}
 	
 	if (night_mode_vibe_on_event_tuple){
@@ -193,7 +196,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	if (show_bluetooth_text_tuple){
 		persist_write_int(SHOW_BLUETOOTH_TEXT_KEY, (int)show_bluetooth_text_tuple->value->int32);
 		settings.show_bluetooth_text = (int)show_bluetooth_text_tuple->value->int32;
-		update_bluetooth_connection(connection_service_peek_pebble_app_connection());
+		update_bluetooth_text();
 		//APP_LOG(APP_LOG_LEVEL_INFO, "bluetooth text settings received!");
 	}
 	
@@ -228,7 +231,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	}
 	
 	app_timer_cancel(is_receiving_data);
-	time_t now = time(NULL);
+	now = time(NULL);
 	update_time(localtime(&now), SECOND_UNIT);
 	update_battery_state(battery_state_service_peek());
 	update_icons();
@@ -236,7 +239,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	set_window_color(flags.current_window_color);
 }
 
+static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+}
+
 void update_icons(){
+	update_battery_state(battery_state_service_peek());
+	
 	gbitmap_destroy(bluetooth_icon); 
 	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
 	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
@@ -386,7 +395,7 @@ void update_time(struct tm* current_time, TimeUnits units_changed){
 	
 	update_date(current_time, SECOND_UNIT);
 	
-	if ( (settings.vibe_hourly_vibe == 1) && !(current_time-> tm_min) && !(is_night() && (settings.night_mode_vibe_hourly_vibe)) ){
+	if ((flags.vibes_allowed) && (settings.vibe_hourly_vibe == 1) && !(current_time-> tm_min) && (!is_night() || settings.night_mode_vibe_hourly_vibe) ){
 		vibes_double_pulse();
 	}
 			
@@ -410,7 +419,7 @@ void update_bluetooth_text(){
 }
 
 void update_bluetooth_connection(bool is_connected){
-	if (settings.vibe_bluetooth_state_change && !(is_night() && (settings.night_mode_vibe_on_event))){
+	if ((flags.vibes_allowed) && settings.vibe_bluetooth_state_change && (!is_night() || settings.night_mode_vibe_on_event)){
 		vibes_long_pulse();
 	}
 		
@@ -465,7 +474,7 @@ void initialization(void) {
 	create_window(settings.time_text_size, settings.window_color);
 	
 	/*Updateing time and date*/
-	time_t now;
+	now = time(NULL);
     update_time(localtime(&now), SECOND_UNIT);
 	
 	/*Showing main window*/
@@ -485,7 +494,9 @@ void initialization(void) {
 	
 	/*open connection with a phone*/
 	app_message_register_inbox_received(inbox_received_callback);
-	app_message_open(256, 16);
+	app_message_register_outbox_failed(outbox_failed_callback);
+	app_message_open(300, 16);
+	flags.vibes_allowed = 1;
 	//APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
 }
 
