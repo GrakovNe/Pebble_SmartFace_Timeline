@@ -94,7 +94,7 @@ void request_data_from_phone(){
     	// Send the message!
     	app_message_outbox_send();
 		
-		APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
+		//APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
 	}
 	/*Сreating the timer again*/
 	app_timer_register(MILLS_IN_HOUR / settings.data_updates_frequency, request_data_from_phone, 0);
@@ -227,7 +227,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	if (language_tuple){
 		persist_write_int(LANGUAGE_KEY, (int)language_tuple->value->int32);
 		settings.language = (int)language_tuple->value->int32;
-		//APP_LOG(APP_LOG_LEVEL_INFO, "language settings received!");
 	}
 	
 	app_timer_cancel(is_receiving_data);
@@ -377,7 +376,6 @@ void read_persist_settings(){
 	
 	if (persist_exists(TOP_ADDITIONAL_STRING_TEXT_KEY)){
 		persist_read_string(TOP_ADDITIONAL_STRING_TEXT_KEY, top_additional_info_buffer, sizeof(top_additional_info_buffer));
-		APP_LOG(APP_LOG_LEVEL_DEBUG, top_additional_info_buffer);
 	} else {
 		strcpy(top_additional_info_buffer, "Smartface 0.1");
 	}

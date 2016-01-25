@@ -18,6 +18,8 @@ var nightModeVibeOnEventKey = 16;
 var dataUpdatesFrequencyKey = 17;
 var weatherLocationKey = 18;
 var weatherTemperatureUnitsKey = 19;
+var topAdditionalInfoURLKey = 20;
+var bottomAdditionalInfoURLKey = 21;
 
 var language;
 var windowColor;
@@ -37,15 +39,12 @@ var nightModeDisplayInvert;
 var nightModeUpdateInfo;
 var nightModeVibeOnEvent;
 var dataUpdatesFrequency;
+var topAdditionalInfoURL;
+var bottomAdditionalInfoURL;
 
 var weatherLocation = "Omsk";
 var weatherTemperatureUnits = "C";
 
-var topAdditionalInfoURL = "http://grakovne.org/pebble/smartface_timeline/scripts/current_weather.php";
-var topAdditionalInfoArguments = "language=" + "1" + "&location=" + "Omsk" + "&weather_units=" + "C";
-
-var bottomAdditionalInfoURL = "http://grakovne.org/pebble/SmartFace/CustomStings/Rates_USD_Brent.php";
-var bottomAdditionalInfoArguments = "";
 
 function readPersistSettings(){
 	language = localStorage.getItem(languageKey);
@@ -68,6 +67,8 @@ function readPersistSettings(){
 	dataUpdatesFrequency = localStorage.getItem(dataUpdatesFrequencyKey);
 	weatherLocation = localStorage.getItem(weatherLocationKey);
 	weatherTemperatureUnits = localStorage.getItem(weatherTemperatureUnitsKey);
+	topAdditionalInfoURL = localStorage.getItem(topAdditionalInfoURLKey);
+	bottomAdditionalInfoURL = localStorage.getItem(bottomAdditionalInfoURLKey);
 	
 	if (!language){
 		language = 1;
@@ -148,6 +149,35 @@ function readPersistSettings(){
 	if (!weatherTemperatureUnits){
 		weatherTemperatureUnits = "C";
 	}
+	
+	if (!topAdditionalInfoURL){
+		topAdditionalInfoURL = "http://grakovne.org/pebble/smartface_timeline/scripts/current_weather.php" + "?language=" + "1" + "&location=" + "Omsk" + "&weather_units=" + "C";
+	}
+	
+	if (!bottomAdditionalInfoURL){
+		bottomAdditionalInfoURL = "http://grakovne.org/pebble/SmartFace/CustomStings/Rates_USD_Brent.php";
+	}
+	
+	/*console.log("language " + language);
+	console.log("windowColor " + windowColor);
+	console.log("timeTextSize " + timeTextSize);
+	console.log("dateFormat " + dateFormat);
+	console.log("showBatteryText " + showBatteryText);
+	console.log("showBluetoothText " + showBluetoothText);
+	console.log("vibeHourlyVibe " + vibeHourlyVibe);
+	console.log("vibeBluetoothStateChangeVibe " + vibeBluetoothStateChangeVibe);
+	console.log("nightModeEnabled " + nightModeEnabled);
+	console.log("nightModeStarted " + nightModeStarted);
+	console.log("nightModeFinished " + nightModeFinished);
+	console.log("nightModeHourlyVibe " + nightModeHourlyVibe);
+	console.log("topAdditionalStringText " + topAdditionalStringText);
+	console.log("bottomAdditionalStringText " + bottomAdditionalStringText);
+	console.log("nightModeDisplayInvert " + nightModeDisplayInvert);
+	console.log("nightModeUpdateInfo " + nightModeUpdateInfo);
+	console.log("nightModeVibeOnEvent " + nightModeVibeOnEvent);
+	console.log("dataUpdatesFrequency " + dataUpdatesFrequency);
+	console.log("weatherTemperatureUnits " + weatherTemperatureUnits);
+	console.log("location " + weatherLocation);*/
 
 }
 
@@ -164,35 +194,53 @@ function getHttpData(url) {
 }
 
 function getAdditionalInfo(){
-	var topAdditionalUrl = topAdditionalInfoURL + "?" + topAdditionalInfoArguments;
-	topAdditionalStringText = getHttpData(topAdditionalUrl);
+	var serverData;
 	
-	var bottomAdditionalURL = bottomAdditionalInfoURL + "?" + bottomAdditionalInfoArguments;
-	bottomAdditionalStringText = getHttpData(bottomAdditionalURL);
+	if (topAdditionalInfoURL.search("http://grakovne.org") === 0){
+		serverData = getHttpData(topAdditionalInfoURL);
+		if (serverData !== 0){
+			topAdditionalStringText = serverData;
+		}
+	}
+	
+	else {
+		topAdditionalStringText = topAdditionalInfoURL;
+	}
+	
+	if (bottomAdditionalInfoURL.search("http://grakovne.org") === 0){
+		serverData = getHttpData(bottomAdditionalInfoURL);
+		if (serverData !== 0){
+			bottomAdditionalStringText = serverData;
+		}
+	}
+	
+	else {
+		bottomAdditionalStringText = bottomAdditionalInfoURL;
+	}
 }
 
 function sendSettings(){
 	getAdditionalInfo();
 	
 	var dictionary = {
-		"LANGUAGE_INFO": language,
-		"WINDOW_COLOR_INFO": windowColor, 
-		"TIME_TEXT_SIZE_INFO": timeTextSize,
-		"DATE_FORMAT_INFO": dateFormat,
-		"SHOW_BATTERY_TEXT_INFO": showBatteryText,
-		"SHOW_BLUETOOTH_TEXT_INFO": showBluetoothText,
-		"VIBE_HOURLY_VIBE_INFO": vibeHourlyVibe,
-		"VIBE_BLUETOOTH_STATE_CHANGE_INFO": vibeBluetoothStateChangeVibe,
-		"NIGHT_MODE_ENABLED_INFO": nightModeEnabled,
-		"NIGHT_MODE_STARTED_INFO": nightModeStarted,
-		"NIGTH_MODE_FINISHED_INFO": nightModeFinished,
+		"LANGUAGE_INFO": parseInt(language),
+		"WINDOW_COLOR_INFO": parseInt(windowColor), 
+		"TIME_TEXT_SIZE_INFO": parseInt(timeTextSize),
+		"DATE_FORMAT_INFO": parseInt(dateFormat),
+		"SHOW_BATTERY_TEXT_INFO": parseInt(showBatteryText),
+		"SHOW_BLUETOOTH_TEXT_INFO": parseInt(showBluetoothText),
+		"VIBE_HOURLY_VIBE_INFO": parseInt(vibeHourlyVibe),
+		"VIBE_BLUETOOTH_STATE_CHANGE_INFO": parseInt(vibeBluetoothStateChangeVibe),
+		"NIGHT_MODE_ENABLED_INFO": parseInt(nightModeEnabled),
+		"NIGHT_MODE_STARTED_INFO": parseInt(nightModeStarted),
+		"NIGTH_MODE_FINISHED_INFO": parseInt(nightModeFinished),
 		"TOP_ADDITIONAL_STRING_TEXT_INFO": topAdditionalStringText,
 		"BOTTOM_ADDITIONAL_STRING_TEXT_INFO": bottomAdditionalStringText,
-		"NIGTH_MODE_DISPLAY_INVERT_INFO": nightModeDisplayInvert,
-		"NIGHT_MODE_UPDATE_INFO_INFO": nightModeUpdateInfo,
-		"NIGTH_MODE_VIBE_ON_EVENT_INFO": nightModeVibeOnEvent,
-		"DATA_UPDATE_FREQUENCY_INFO": dataUpdatesFrequency,
-		"NIGHT_MODE_HOURLY_VIBE_INFO": nightModeHourlyVibe
+		"NIGTH_MODE_DISPLAY_INVERT_INFO": parseInt(nightModeDisplayInvert),
+		"NIGHT_MODE_UPDATE_INFO_INFO": parseInt(nightModeUpdateInfo),
+		"NIGTH_MODE_VIBE_ON_EVENT_INFO": parseInt(nightModeVibeOnEvent),
+		"DATA_UPDATE_FREQUENCY_INFO": parseInt(dataUpdatesFrequency),
+		"NIGHT_MODE_HOURLY_VIBE_INFO": parseInt(nightModeHourlyVibe)
       };
       Pebble.sendAppMessage(dictionary,
         function(e) {
@@ -217,26 +265,48 @@ Pebble.addEventListener('appmessage',
   function(e) {
     console.log("AppMessage received!");
 	sendSettings();
-	  
-	   console.log("language " + language);
-	  console.log("windowColor " + windowColor);
-	  console.log("timeTextSize " + timeTextSize);
-	  console.log("dateFormat " + dateFormat);
-	  console.log("showBatteryText " + showBatteryText);
-	  console.log("showBluetoothText " + showBluetoothText);
-	  console.log("vibeHourlyVibe " + vibeHourlyVibe);
-	  console.log("vibeBluetoothStateChangeVibe " + vibeBluetoothStateChangeVibe);
-	  console.log("nightModeEnabled " + nightModeEnabled);
-	  console.log("nightModeStarted " + nightModeStarted);
-	  console.log("nightModeFinished " + nightModeFinished);
-	  console.log("nightModeHourlyVibe " + nightModeHourlyVibe);
-	  console.log("topAdditionalStringText " + topAdditionalStringText);
-	  console.log("bottomAdditionalStringText " + bottomAdditionalStringText);
-	  console.log("nightModeDisplayInvert " + nightModeDisplayInvert);
-	  console.log("nightModeUpdateInfo " + nightModeUpdateInfo);
-	  console.log("nightModeVibeOnEvent " + nightModeVibeOnEvent);
-	  console.log("dataUpdatesFrequency " + dataUpdatesFrequency);
-	  console.log("weatherTemperatureUnits " + weatherTemperatureUnits);
-	  console.log("location " + location);
   }                     
+);
+
+Pebble.addEventListener("showConfiguration",
+  function(e) {
+		Pebble.openURL("http://grakovne.org/pebble/smartface_timeline/settings/settings.html");
+	}
+);
+
+function parseTime(timeText){
+	return parseInt(timeText.substring(0, timeText.search(":"))) * 60 + parseInt(timeText.substring(1 + timeText.search(":")));
+}
+
+Pebble.addEventListener("webviewclosed",
+  function(e) {
+	  console.log('Configuration window returned: ' + e.response);
+	  
+	  var configuration = JSON.parse(decodeURIComponent(e.response));
+	  
+	  localStorage.setItem(languageKey, parseInt(configuration.language));
+	  localStorage.setItem(windowColorKey, parseInt(configuration.windowColor));
+	  localStorage.setItem(timeTextSizeKey, parseInt(configuration.timeTextSize));
+	  localStorage.setItem(dateFormatKey, parseInt(configuration.dateFormat));
+	  localStorage.setItem(showBatteryTextKey, parseInt(configuration.showBatteryText));
+	  localStorage.setItem(showBluetoothTextKey, parseInt(configuration.showBluetoothText));
+	  localStorage.setItem(vibeHourlyVibeKey, parseInt(configuration.vibeHourlyVibe));
+	  localStorage.setItem(vibeBluetoothStateChangeVibeKey, parseInt(configuration.vibeBluetoothStateChangeVibe));
+	  localStorage.setItem(nightModeEnabledKey, parseInt(configuration.nightModeEnabled));
+	  localStorage.setItem(nightModeStartedKey, parseInt(parseTime(configuration.nightModeStarted)));
+	  localStorage.setItem(nightModeFinishedKey, parseInt(parseTime(configuration.nightModeFinished)));
+	  localStorage.setItem(nightModeHourlyVibeKey, parseInt(configuration.nightModeHourlyVibe));
+	  localStorage.setItem(nightModeDisplayInvertKey, parseInt(configuration.nightModeDisplayInvert));
+	  localStorage.setItem(nightModeUpdateInfoKey, parseInt(configuration.nightModeUpdateInfo));
+	  localStorage.setItem(nightModeVibeOnEventKey, parseInt(configuration.nightModeVibeOnEvent));
+	  localStorage.setItem(dataUpdatesFrequencyKey, parseInt(configuration.dataUpdatesFrequency));
+	  localStorage.setItem(weatherLocationKey, configuration.location);
+	  localStorage.setItem(weatherTemperatureUnitsKey, configuration.weatherTemperatureUnits);
+	  localStorage.setItem(topAdditionalInfoURLKey, configuration.topAdditionalStringURL);
+	  localStorage.setItem(bottomAdditionalInfoURLKey, configuration.bottomAdditionalStringURL);
+	  
+	  readPersistSettings();
+	  getAdditionalInfo();
+	  sendSettings();
+  }
 );
