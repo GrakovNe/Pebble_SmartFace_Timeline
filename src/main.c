@@ -58,14 +58,13 @@ void update_time(struct tm* current_time, TimeUnits units_changed);
 void update_date(struct tm* current_time, TimeUnits units_changed);
 void update_bluetooth_connection(bool is_connected);
 void update_battery_state(BatteryChargeState battery_state);
-void update_additional_info(void);
-void read_persist_settings(void);
-void initialization(void);
-void deinitialization(void);
+inline void update_additional_info(void);
+inline void read_persist_settings(void);
+inline void initialization(void);
+inline void deinitialization(void);
 void update_icons(void);
 void update_bluetooth_text(void);
-void update_bluetooth_text(void);
-void is_night(void);
+inline void is_night(void);
 
 int main(void);
 
@@ -265,7 +264,7 @@ void update_icons(){
 	layer_mark_dirty((Layer *)bluetooth_icon_layer);
 }
 
-void is_night(){
+inline void is_night(){
 	if (!settings.night_mode_enabled){
 		flags.is_night_now = 0;
 		return;
@@ -293,7 +292,7 @@ void is_night(){
 	flags.is_night_now = 0;
 }
 
-void read_persist_settings(){
+inline void read_persist_settings(){
 	if (persist_exists(LANGUAGE_KEY)){
 		settings.language = persist_read_int(LANGUAGE_KEY);
 	} else {
@@ -427,7 +426,7 @@ void update_time(struct tm* current_time, TimeUnits units_changed){
 	update_icons();
 }
 
-void update_bluetooth_text(){
+inline void update_bluetooth_text(){
 	if (settings.show_bluetooth_text){
 		text_layer_set_text(bluetooth_text, bluetooth_states_names[settings.language][flags.is_bluetooth_connected]);
 	} else{
@@ -478,7 +477,7 @@ void update_date(struct tm* current_time, TimeUnits units_changed){
 	text_layer_set_text(date_text, date_text_buffer);
 }
 
-void update_additional_info(){
+inline void update_additional_info(){
 	text_layer_set_text(top_additional_info_text, top_additional_info_buffer);
 	text_layer_set_text(bottom_additional_info_text, bottom_additional_info_buffer);
 }
@@ -517,7 +516,7 @@ void initialization(void) {
 	//APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
 }
 
-void deinitialization(void) {
+inline void deinitialization(void) {
 	destroy_window();
 }
 
