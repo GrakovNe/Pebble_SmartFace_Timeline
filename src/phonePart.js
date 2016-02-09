@@ -45,7 +45,6 @@ var bottomAdditionalInfoURL;
 var weatherLocation = "Omsk";
 var weatherTemperatureUnits = "C";
 
-
 function readPersistSettings(){
 	language = localStorage.getItem(languageKey);
 	windowColor = localStorage.getItem(windowColorKey);
@@ -151,7 +150,7 @@ function readPersistSettings(){
 	}
 	
 	if (!topAdditionalInfoURL){
-		topAdditionalInfoURL = "http://grakovne.org/pebble/smartface_timeline/scripts/current_weather.php" + "?language=" + "1" + "&location=" + "Omsk" + "&weather_units=" + "C";
+		topAdditionalInfoURL = "http://grakovne.org/pebble/smartface_timeline/scripts/current_weather.php" + "?language=" + "0" + "&location=" + "Omsk" + "&weather_units=" + "C";
 	}
 	
 	if (!bottomAdditionalInfoURL){
@@ -207,6 +206,8 @@ function getAdditionalInfo(){
 		topAdditionalStringText = topAdditionalInfoURL;
 	}
 	
+	topAdditionalStringText = cropAdditionalInfo(topAdditionalStringText);
+	
 	if (bottomAdditionalInfoURL.search("http://grakovne.org") === 0){
 		serverData = getHttpData(bottomAdditionalInfoURL);
 		if (serverData !== 0){
@@ -217,6 +218,8 @@ function getAdditionalInfo(){
 	else {
 		bottomAdditionalStringText = bottomAdditionalInfoURL;
 	}
+	
+	bottomAdditionalStringText = cropAdditionalInfo(bottomAdditionalStringText);
 }
 
 function sendSettings(){
@@ -244,10 +247,27 @@ function sendSettings(){
       };
       Pebble.sendAppMessage(dictionary,
         function(e) {
-          console.log("Info sent to Pebble successfully!");
+          //console.log("Info sent to Pebble successfully!");
         },
         function(e) {
-          console.log("Error sending weather info to Pebble!");
+          //console.log("Error sending weather info to Pebble!");
+        }
+      );
+}
+
+function sendAdditionalInfo(){
+	getAdditionalInfo();
+	
+	var dictionary = {
+		"TOP_ADDITIONAL_STRING_TEXT_INFO": topAdditionalStringText,
+		"BOTTOM_ADDITIONAL_STRING_TEXT_INFO": bottomAdditionalStringText
+      };
+      Pebble.sendAppMessage(dictionary,
+        function(e) {
+          //console.log("Info sent to Pebble successfully!");
+        },
+        function(e) {
+          //console.log("Error sending weather info to Pebble!");
         }
       );
 }
@@ -256,15 +276,16 @@ function sendSettings(){
 Pebble.addEventListener('ready', 
   function(e) {
 	readPersistSettings();
-    console.log("PebbleKit JS ready!");
+    //console.log("PebbleKit JS ready!");
   }
 );
 
 // Listen for when an AppMessage is received
 Pebble.addEventListener('appmessage',
   function(e) {
-    console.log("AppMessage received!");
-	sendSettings();
+    //console.log("AppMessage received!");
+	//sendSettings();
+	  sendAdditionalInfo();
   }                     
 );
 
@@ -278,9 +299,17 @@ function parseTime(timeText){
 	return parseInt(timeText.substring(0, timeText.search(":"))) * 60 + parseInt(timeText.substring(1 + timeText.search(":")));
 }
 
+function cropAdditionalInfo(textString){
+	if (textString.length > 15){
+		textString = textString.substring(0, 12) + "...";
+	}
+	
+	return textString;
+}
+
 Pebble.addEventListener("webviewclosed",
   function(e) {
-	  console.log('Configuration window returned: ' + e.response);
+	  //console.log('Configuration window returned: ' + e.response);
 	  
 	  var configuration = JSON.parse(decodeURIComponent(e.response));
 	  

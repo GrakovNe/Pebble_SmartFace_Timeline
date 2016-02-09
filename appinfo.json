@@ -23,10 +23,18 @@
         "configurable"
     ],
     "companyName": "grakovne@yandex.ru",
+    "enableMultiJS": false,
     "longName": "SmartFace TimeLine",
     "projectType": "native",
     "resources": {
         "media": [
+            {
+                "file": "images/app_logo.png",
+                "menuIcon": true,
+                "name": "APP_LOGO",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
             {
                 "file": "images/battery_100_inverted.png",
                 "name": "BATTERY_100_INVERTED",
@@ -264,14 +272,14 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "SmartFace TimeLine",
+    "shortName": "SmartFace",
     "targetPlatforms": [
         "aplite",
         "basalt",
         "chalk"
     ],
     "uuid": "4f4a769d-878a-4b80-8871-e2fa018d8bb0",
-    "versionLabel": "0.1",
+    "versionLabel": "1.0",
     "watchapp": {
         "watchface": true
     }
