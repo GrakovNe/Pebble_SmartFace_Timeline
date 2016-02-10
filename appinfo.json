@@ -23,7 +23,7 @@
         "configurable"
     ],
     "companyName": "grakovne@yandex.ru",
-    "enableMultiJS": false,
+    "enableMultiJS": true,
     "longName": "SmartFace TimeLine",
     "projectType": "native",
     "resources": {

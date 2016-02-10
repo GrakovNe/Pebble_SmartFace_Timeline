@@ -9,6 +9,7 @@
 
 #define DD_MM_YYYY_DATE_FORMAT 0
 #define DD_MMMM_DATE_FORMAT 1
+#define MM_DD_YYYY_DATE_FORMAT 2
 
 #define SMALL_TIME_TEXT 0
 #define BIG_TIME_TEXT 1
@@ -107,7 +108,7 @@ static const char weekday_names[2][7][24] = {
 		"ПOHEДEЛЬHИK",
 		"BTOPHИK",
 		"CPEДA",
-		"ЧETBЕPГ",
+		"ЧETBEPГ",
 		"ПЯTHИЦA",
 		"CYББOTA"
 	}
