@@ -11,6 +11,10 @@
 #define DD_MMMM_DATE_FORMAT 1
 #define MM_DD_YYYY_DATE_FORMAT 2
 
+
+#define WEEKDAY_ABOVE_DATE_STYLE 0
+#define WEEKDAY_BELOW_DATE_STYLE 1
+
 #define SMALL_TIME_TEXT 0
 #define BIG_TIME_TEXT 1
 
@@ -39,6 +43,7 @@
 #define NIGHT_MODE_VIBE_ON_EVENT_KEY       17
 #define DATA_UPDATES_FREQUENCY_KEY         18
 #define NIGHT_MODE_VIBE_HOURLY_VIBE_KEY    19
+#define DATE_STYLE_KEY                     20
 
 static const uint32_t battery_icons[2][12] = {
 	{
@@ -180,6 +185,7 @@ enum {
 	NIGHT_MODE_UPDATE_INFO_INFO           = 14,
 	NIGTH_MODE_VIBE_ON_EVENT_INFO         = 15,
 	DATA_UPDATE_FREQUENCY_INFO			  = 16,
-	NIGHT_MODE_HOURLY_VIBE_INFO           = 17
+	NIGHT_MODE_HOURLY_VIBE_INFO           = 17,
+	DATE_STYLE_INFO                       = 18
 };
 

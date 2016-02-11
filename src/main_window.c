@@ -7,9 +7,9 @@ TextLayer *text_layer;
 
 TextLayer *bluetooth_text;
 TextLayer *battery_text;
-TextLayer *date_text;
+TextLayer *top_date_text;
 TextLayer *time_text;
-TextLayer *weekday_text;
+TextLayer *bottom_date_text;
 TextLayer *top_additional_info_text;
 TextLayer *bottom_additional_info_text;
 
@@ -21,7 +21,6 @@ GBitmap *battery_icon;
 
 GFont bluetooth_text_font;
 GFont battery_text_font;
-GFont weekday_text_font;
 GFont time_text_font;
 GFont date_text_font;
 GFont top_additional_info_text_font;
@@ -55,18 +54,18 @@ void create_texts(int text_size, int window_color){
 	text_layer_set_background_color(bluetooth_text, GColorClear);
 	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(bluetooth_text));
 	
-	/*weekday name*/
-	weekday_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_17));
+	/*bottom date text*/
+	date_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_17));
 	if (text_size == BIG_TIME_TEXT){
-		weekday_text = text_layer_create(GRect(0, 29, 145, 30));
+		bottom_date_text = text_layer_create(GRect(0, 29, 145, 30));
 	}
 	if (text_size == SMALL_TIME_TEXT){
-    	weekday_text = text_layer_create(GRect(0, 34, 145, 30)); 
+    	bottom_date_text = text_layer_create(GRect(0, 34, 145, 30)); 
 	}
-	text_layer_set_text_alignment(weekday_text, GTextAlignmentCenter);
-	text_layer_set_font(weekday_text, weekday_text_font);
-	text_layer_set_background_color(weekday_text, GColorClear);
-	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(weekday_text));
+	text_layer_set_text_alignment(bottom_date_text, GTextAlignmentCenter);
+	text_layer_set_font(bottom_date_text, date_text_font);
+	text_layer_set_background_color(bottom_date_text, GColorClear);
+	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(bottom_date_text));
 	
 	/*time text*/
 	if (text_size == BIG_TIME_TEXT){	// large font 
@@ -90,16 +89,15 @@ void create_texts(int text_size, int window_color){
 	
 	/*current date*/
 	if (text_size == BIG_TIME_TEXT){
-		date_text = text_layer_create(GRect(0, 90, 145, 25)); 
+		top_date_text = text_layer_create(GRect(0, 90, 145, 25)); 
 	}
 	if (text_size == SMALL_TIME_TEXT){
-		date_text = text_layer_create(GRect(0, 88, 145, 25)); 
+		top_date_text = text_layer_create(GRect(0, 88, 145, 25)); 
 	}
-	date_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_17));
-	text_layer_set_text_alignment(date_text, GTextAlignmentCenter);
-	text_layer_set_font(date_text, date_text_font);
-	text_layer_set_background_color(date_text, GColorClear);
-	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(date_text));
+	text_layer_set_text_alignment(top_date_text, GTextAlignmentCenter);
+	text_layer_set_font(top_date_text, date_text_font);
+	text_layer_set_background_color(top_date_text, GColorClear);
+	layer_add_child(window_get_root_layer(main_window), text_layer_get_layer(top_date_text));
 	
 	/*top additional string*/
 	top_additional_info_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_14));
@@ -145,9 +143,9 @@ void set_window_color(int window_color){
 	
 	text_layer_set_text_color(battery_text, foreground_color);
 	text_layer_set_text_color(bluetooth_text, foreground_color);
-	text_layer_set_text_color(weekday_text, foreground_color);
+	text_layer_set_text_color(top_date_text, foreground_color);
 	text_layer_set_text_color(time_text, foreground_color);
-	text_layer_set_text_color(date_text, foreground_color);
+	text_layer_set_text_color(bottom_date_text, foreground_color);
 	text_layer_set_text_color(top_additional_info_text, foreground_color);
 	text_layer_set_text_color(bottom_additional_info_text, foreground_color);
 }
@@ -155,9 +153,9 @@ void set_window_color(int window_color){
 void destroy_window(){
 	text_layer_destroy(bluetooth_text);
 	text_layer_destroy(battery_text);
-	text_layer_destroy(date_text);
+	text_layer_destroy(top_date_text);
 	text_layer_destroy(time_text);
-	text_layer_destroy(weekday_text);
+	text_layer_destroy(bottom_date_text);
 	text_layer_destroy(top_additional_info_text);
 	text_layer_destroy(bottom_additional_info_text);
 	gbitmap_destroy(bluetooth_icon); 

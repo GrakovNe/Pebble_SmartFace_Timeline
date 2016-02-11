@@ -20,6 +20,7 @@ var weatherLocationKey = 18;
 var weatherTemperatureUnitsKey = 19;
 var topAdditionalInfoURLKey = 20;
 var bottomAdditionalInfoURLKey = 21;
+var dateStyleKey = 22;
 
 var language;
 var windowColor;
@@ -41,6 +42,7 @@ var nightModeVibeOnEvent;
 var dataUpdatesFrequency;
 var topAdditionalInfoURL;
 var bottomAdditionalInfoURL;
+var dateStyle;
 
 var weatherLocation = "Omsk";
 var weatherTemperatureUnits = "C";
@@ -50,6 +52,7 @@ function readPersistSettings(){
 	windowColor = localStorage.getItem(windowColorKey);
 	timeTextSize = localStorage.getItem(timeTextSizeKey);
 	dateFormat = localStorage.getItem(dateFormatKey);
+	dateStyle = localStorage.getItem(dateStyleKey);
 	showBatteryText = localStorage.getItem(showBatteryTextKey);
 	showBluetoothText = localStorage.getItem(showBluetoothTextKey);
 	vibeHourlyVibe = localStorage.getItem(vibeHourlyVibeKey);
@@ -82,7 +85,11 @@ function readPersistSettings(){
 	}
 	
 	if (!dateFormat){
-		dateFormat = 1;
+		dateFormat = 0;
+	}
+	
+	if (!dateStyle){
+		dateFormat = 0;
 	}
 	
 	if (!showBatteryText){
@@ -243,7 +250,8 @@ function sendSettings(){
 		"NIGHT_MODE_UPDATE_INFO_INFO": parseInt(nightModeUpdateInfo),
 		"NIGTH_MODE_VIBE_ON_EVENT_INFO": parseInt(nightModeVibeOnEvent),
 		"DATA_UPDATE_FREQUENCY_INFO": parseInt(dataUpdatesFrequency),
-		"NIGHT_MODE_HOURLY_VIBE_INFO": parseInt(nightModeHourlyVibe)
+		"NIGHT_MODE_HOURLY_VIBE_INFO": parseInt(nightModeHourlyVibe),
+		"DATE_STYLE_INFO": parseInt(dateStyle)
       };
       Pebble.sendAppMessage(dictionary,
         function(e) {
@@ -317,6 +325,7 @@ Pebble.addEventListener("webviewclosed",
 	  localStorage.setItem(windowColorKey, parseInt(configuration.windowColor));
 	  localStorage.setItem(timeTextSizeKey, parseInt(configuration.timeTextSize));
 	  localStorage.setItem(dateFormatKey, parseInt(configuration.dateFormat));
+	  localStorage.setItem(dateStyleKey, parseInt(configuration.dateStyle));
 	  localStorage.setItem(showBatteryTextKey, parseInt(configuration.showBatteryText));
 	  localStorage.setItem(showBluetoothTextKey, parseInt(configuration.showBluetoothText));
 	  localStorage.setItem(vibeHourlyVibeKey, parseInt(configuration.vibeHourlyVibe));
@@ -333,6 +342,7 @@ Pebble.addEventListener("webviewclosed",
 	  localStorage.setItem(weatherTemperatureUnitsKey, configuration.weatherTemperatureUnits);
 	  localStorage.setItem(topAdditionalInfoURLKey, configuration.topAdditionalStringURL);
 	  localStorage.setItem(bottomAdditionalInfoURLKey, configuration.bottomAdditionalStringURL);
+	  
 	  
 	  readPersistSettings();
 	  getAdditionalInfo();

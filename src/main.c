@@ -5,8 +5,8 @@
 extern Window *main_window;
 extern TextLayer *text_layer;
 extern TextLayer *time_text;
-extern TextLayer *date_text;
-extern TextLayer *weekday_text;
+extern TextLayer *top_date_text;
+extern TextLayer *bottom_date_text;
 extern TextLayer *bluetooth_text;
 extern TextLayer *battery_text;
 extern TextLayer *top_additional_info_text;
@@ -35,6 +35,7 @@ struct {
 	int night_mode_vibe_on_event;
 	int night_mode_vibe_hourly_vibe;
 	int data_updates_frequency;
+	int date_style;
 } settings;
 
 struct {
@@ -111,7 +112,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
  	Tuple *language_tuple = dict_find(iterator, LANGUAGE_INFO);
 	Tuple *window_color_tuple = dict_find(iterator, WINDOW_COLOR_INFO);
 	Tuple *time_text_size_tuple = dict_find(iterator, TIME_TEXT_SIZE_INFO);
-	Tuple *date_format_tuple_tuple = dict_find(iterator, DATE_FORMAT_INFO);
+	Tuple *date_format_tuple = dict_find(iterator, DATE_FORMAT_INFO);
+	Tuple *date_style_tuple = dict_find(iterator, DATE_STYLE_INFO);
 	Tuple *show_battery_text_tuple = dict_find(iterator, SHOW_BATTERY_TEXT_INFO);
 	Tuple *show_bluetooth_text_tuple = dict_find(iterator, SHOW_BLUETOOTH_TEXT_INFO);
 	Tuple *vibe_hourly_vibe_tuple = dict_find(iterator, VIBE_HOURLY_VIBE_INFO);
@@ -215,10 +217,16 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 		//APP_LOG(APP_LOG_LEVEL_INFO, "battery text settings received!");
 	}
 	
-	if (date_format_tuple_tuple){
-		persist_write_int(DATE_FORMAT_KEY, (int)date_format_tuple_tuple->value->int32);
-		settings.date_format = (int)date_format_tuple_tuple->value->int32;
+	if (date_format_tuple){
+		persist_write_int(DATE_FORMAT_KEY, (int)date_format_tuple->value->int32);
+		settings.date_format = (int)date_format_tuple->value->int32;
 		//APP_LOG(APP_LOG_LEVEL_INFO, "date format settings received!");
+	}
+	
+	if (date_style_tuple){
+		persist_write_int(DATE_STYLE_KEY, (int)date_style_tuple->value->int32);
+		settings.date_style = (int)date_style_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "date style settings received!");
 	}
 	
 	if (time_text_size_tuple){
@@ -317,6 +325,12 @@ inline void read_persist_settings(){
 		settings.date_format = persist_read_int(DATE_FORMAT_KEY);
 	} else {
 		settings.date_format = DD_MMMM_DATE_FORMAT;
+	}
+	
+	if (persist_exists(DATE_STYLE_KEY)){
+		settings.date_style = persist_read_int(DATE_STYLE_KEY);
+	} else {
+		settings.date_style = WEEKDAY_BELOW_DATE_STYLE;
 	}
 	
 	if (persist_exists(SHOW_BATTERY_TEXT_KEY)){
@@ -477,7 +491,20 @@ void update_battery_state(BatteryChargeState battery_state){
 }
 
 void update_date(struct tm* current_time, TimeUnits units_changed){
-	text_layer_set_text(weekday_text, weekday_names[settings.language][current_time->tm_wday]);
+	TextLayer * weekday_text_current = top_date_text;
+	TextLayer * date_text_current = bottom_date_text;
+	
+	if (settings.date_style == WEEKDAY_BELOW_DATE_STYLE){
+		weekday_text_current = top_date_text;
+		date_text_current = bottom_date_text;
+	}
+	
+	if (settings.date_style == WEEKDAY_ABOVE_DATE_STYLE){
+		date_text_current = top_date_text;
+		weekday_text_current = bottom_date_text;
+	}
+	
+	text_layer_set_text(weekday_text_current, weekday_names[settings.language][current_time->tm_wday]);
 	
 	if (settings.date_format == DD_MM_YYYY_DATE_FORMAT){
 		snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d.%02d.%d", current_time->tm_mday, current_time->tm_mon + 1, current_time->tm_year + 1900);
@@ -491,7 +518,7 @@ void update_date(struct tm* current_time, TimeUnits units_changed){
 	snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d/%02d/%04d", 1 + current_time->tm_mon, current_time->tm_mday, 1900 + current_time->tm_year);
 	}
 	
-	text_layer_set_text(date_text, date_text_buffer);
+	text_layer_set_text(date_text_current, date_text_buffer);
 }
 
 inline void update_additional_info(){
