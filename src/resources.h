@@ -44,6 +44,7 @@
 #define DATA_UPDATES_FREQUENCY_KEY         18
 #define NIGHT_MODE_VIBE_HOURLY_VIBE_KEY    19
 #define DATE_STYLE_KEY                     20
+#define SHOW_LAST_DISCONNECT_TIME_KEY      21
 
 static const uint32_t battery_icons[2][12] = {
 	{
@@ -98,7 +99,7 @@ static const uint32_t bluetooth_icons[2][2] = {
 	}
 };
 
-static const char weekday_names[2][7][24] = {
+static const char weekday_names[3][7][24] = {
 	{
 		"SUNDAY",
 		"MONDAY",
@@ -116,10 +117,19 @@ static const char weekday_names[2][7][24] = {
 		"ЧETBEPГ",
 		"ПЯTHИЦA",
 		"CYББOTA"
+	},	
+	{ 
+		"SONNTAG", 
+		"MONTAG", 
+		"DIENSTAG", 
+		"MITTWOCH", 
+		"DONNERSTAG", 
+		"FREITAG", 
+		"SAMSTAG" 
 	}
 };
 
-static const char month_names[2][12][24] = {
+static const char month_names[3][12][24] = {
 	{
 		"JANUARY",
 		"FEBRUARY",
@@ -148,21 +158,41 @@ static const char month_names[2][12][24] = {
 		"НОЯБРЯ",
 		"ДЕКАБРЯ"
 		
+	},
+		
+	{ 
+		"JANUAR", 
+		"FEBRUAR", 
+		"MÄRZ", 
+		"APRIL", 
+		"MAI", 
+		"JUNI", 
+		"JULI", 
+		"AUGUST", 
+		"SEPTEMBER", 
+		"OKTOBER", 
+		"NOVEMBER", 
+		"DEZEMBER" 
 	}
 };
 
-static const char offline_text_names[2][16] = {
+static const char offline_text_names[3][16] = {
 	"OFFLINE",
-	"HET CETИ"
+	"HET CETИ",
+	"OFFLINE"
 };
 
-static const char bluetooth_states_names[2][2][7] = {
+static const char bluetooth_states_names[3][2][7] = {
 	{
 		"LOST",
 		"OK"
 	},
 	{
 		"HET",
+		"OK"
+	},
+	{
+		"NEIN",
 		"OK"
 	}
 };
@@ -186,6 +216,7 @@ enum {
 	NIGTH_MODE_VIBE_ON_EVENT_INFO         = 15,
 	DATA_UPDATE_FREQUENCY_INFO			  = 16,
 	NIGHT_MODE_HOURLY_VIBE_INFO           = 17,
-	DATE_STYLE_INFO                       = 18
+	DATE_STYLE_INFO                       = 18,
+	SHOW_LAST_DISCONNECT_TIME_INFO        = 19
 };
 

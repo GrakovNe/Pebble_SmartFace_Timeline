@@ -36,6 +36,7 @@ struct {
 	int night_mode_vibe_hourly_vibe;
 	int data_updates_frequency;
 	int date_style;
+	int show_last_disconnect_time;
 } settings;
 
 struct {
@@ -50,6 +51,7 @@ char bottom_additional_info_buffer [48];
 char time_text_buffer              [6];
 char date_text_buffer              [24];
 char battery_text_buffer           [4];
+char bluetooth_text_buffer         [10];
 
 AppTimer* is_receiving_data;
 
@@ -128,6 +130,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	Tuple *night_mode_update_info_tuple = dict_find(iterator, NIGHT_MODE_UPDATE_INFO_INFO);
 	Tuple *night_mode_vibe_on_event_tuple= dict_find(iterator, NIGTH_MODE_VIBE_ON_EVENT_INFO);
 	Tuple *data_updates_frequency_tuple = dict_find(iterator, DATA_UPDATE_FREQUENCY_INFO);
+	Tuple *show_last_disconnect_time_tuple = dict_find(iterator, SHOW_LAST_DISCONNECT_TIME_INFO);
 	
 	flags.vibes_allowed = 0;
 	
@@ -148,6 +151,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	if (data_updates_frequency_tuple){
 		persist_write_int(DATA_UPDATES_FREQUENCY_KEY, (int)data_updates_frequency_tuple->value->int32);
 		settings.data_updates_frequency = (int)data_updates_frequency_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "data update frequency settings received!");
+	}
+	
+	if (show_last_disconnect_time_tuple){
+		persist_write_int(SHOW_LAST_DISCONNECT_TIME_KEY, (int)show_last_disconnect_time_tuple->value->int32);
+		settings.show_last_disconnect_time = (int)show_last_disconnect_time_tuple->value->int32;
 		//APP_LOG(APP_LOG_LEVEL_INFO, "data update frequency settings received!");
 	}
 	
@@ -333,6 +342,12 @@ inline void read_persist_settings(){
 		settings.date_style = WEEKDAY_BELOW_DATE_STYLE;
 	}
 	
+	if (persist_exists(SHOW_LAST_DISCONNECT_TIME_KEY)){
+		settings.show_last_disconnect_time = persist_read_int(SHOW_LAST_DISCONNECT_TIME_KEY);
+	} else {
+		settings.show_last_disconnect_time = 0;
+	}
+	
 	if (persist_exists(SHOW_BATTERY_TEXT_KEY)){
 		settings.show_battery_text = persist_read_int(SHOW_BATTERY_TEXT_KEY);
 	} else {
@@ -450,8 +465,21 @@ void update_time(struct tm* current_time, TimeUnits units_changed){
 
 inline void update_bluetooth_text(){
 	if (settings.show_bluetooth_text){
-		text_layer_set_text(bluetooth_text, bluetooth_states_names[settings.language][flags.is_bluetooth_connected]);
-	} else{
+		if (settings.show_last_disconnect_time && !flags.is_bluetooth_connected){
+			struct tm * current_time;
+			now = time(NULL);
+			current_time = localtime (&now);
+			snprintf(bluetooth_text_buffer, sizeof(bluetooth_text_buffer), "%02d:%02d", current_time -> tm_hour, current_time -> tm_min);	
+			text_layer_set_text(bluetooth_text, bluetooth_text_buffer);
+		}
+		
+		else {
+			text_layer_set_text(bluetooth_text, bluetooth_states_names[settings.language][flags.is_bluetooth_connected]);
+		}
+		
+	} 
+	
+	else {
 		text_layer_set_text(bluetooth_text, EMPTY_STRING);
 	}
 }

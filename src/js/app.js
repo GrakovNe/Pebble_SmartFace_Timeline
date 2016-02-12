@@ -21,6 +21,7 @@ var weatherTemperatureUnitsKey = 19;
 var topAdditionalInfoURLKey = 20;
 var bottomAdditionalInfoURLKey = 21;
 var dateStyleKey = 22;
+var showLastDisconnectTimeKey = 23;
 
 var language;
 var windowColor;
@@ -43,6 +44,7 @@ var dataUpdatesFrequency;
 var topAdditionalInfoURL;
 var bottomAdditionalInfoURL;
 var dateStyle;
+var showLastDisconnectTime;
 
 var weatherLocation = "Omsk";
 var weatherTemperatureUnits = "C";
@@ -71,9 +73,14 @@ function readPersistSettings(){
 	weatherTemperatureUnits = localStorage.getItem(weatherTemperatureUnitsKey);
 	topAdditionalInfoURL = localStorage.getItem(topAdditionalInfoURLKey);
 	bottomAdditionalInfoURL = localStorage.getItem(bottomAdditionalInfoURLKey);
+	showLastDisconnectTime = localStorage.getItem(showLastDisconnectTimeKey);
 	
 	if (!language){
 		language = 1;
+	}
+	
+	if (!showLastDisconnectTime){
+		showLastDisconnectTime = 0;
 	}
 	
 	if (!windowColor){
@@ -251,7 +258,8 @@ function sendSettings(){
 		"NIGTH_MODE_VIBE_ON_EVENT_INFO": parseInt(nightModeVibeOnEvent),
 		"DATA_UPDATE_FREQUENCY_INFO": parseInt(dataUpdatesFrequency),
 		"NIGHT_MODE_HOURLY_VIBE_INFO": parseInt(nightModeHourlyVibe),
-		"DATE_STYLE_INFO": parseInt(dateStyle)
+		"DATE_STYLE_INFO": parseInt(dateStyle),
+		"SHOW_LAST_DISCONNECT_TIME_INFO": parseInt(showLastDisconnectTime)
       };
       Pebble.sendAppMessage(dictionary,
         function(e) {
@@ -342,6 +350,7 @@ Pebble.addEventListener("webviewclosed",
 	  localStorage.setItem(weatherTemperatureUnitsKey, configuration.weatherTemperatureUnits);
 	  localStorage.setItem(topAdditionalInfoURLKey, configuration.topAdditionalStringURL);
 	  localStorage.setItem(bottomAdditionalInfoURLKey, configuration.bottomAdditionalStringURL);
+	  localStorage.setItem(showLastDisconnectTimeKey, configuration.showLastDisconnectTime);
 	  
 	  
 	  readPersistSettings();
