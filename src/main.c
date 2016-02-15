@@ -44,16 +44,19 @@ struct {
 	int is_bluetooth_connected;
 	int vibes_allowed;
 	int is_night_now;
+	int is_charging;
+	int battery_percents;
 } flags;
 
-char top_additional_info_buffer    [48];
-char bottom_additional_info_buffer [48];
-char time_text_buffer              [6];
-char date_text_buffer              [24];
-char battery_text_buffer           [4];
+char top_additional_info_buffer    [50];
+char bottom_additional_info_buffer [50];
+char time_text_buffer              [10];
+char date_text_buffer              [26];
+char battery_text_buffer           [5];
 char bluetooth_text_buffer         [10];
 
 AppTimer* is_receiving_data;
+AppTimer* battery_animation_timer;
 
 time_t now;
 
@@ -98,16 +101,6 @@ void request_data_from_phone(){
 		
 		
 	}
-	/*Сreating the timer again*/
-	app_timer_register(MILLS_IN_HOUR / settings.data_updates_frequency, request_data_from_phone, 0);
-	
-	/*
-	char temp[48];
-	snprintf(temp, sizeof(temp), "timer when use - %d", MILLS_IN_HOUR / settings.data_updates_frequency);
-	APP_LOG(APP_LOG_LEVEL_DEBUG, temp);
-	vibes_double_pulse();
-	app_timer_register(10000, request_data_from_phone, 0);
-	*/
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {	
@@ -263,6 +256,13 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	update_time(localtime(&now), SECOND_UNIT);
 	update_date(localtime(&now), SECOND_UNIT);
 	update_icons();
+	
+	/*Сreating the timer again*/
+	
+	if (settings.data_updates_frequency != 30){
+		app_timer_register(MILLS_IN_HOUR / settings.data_updates_frequency, request_data_from_phone, 0);
+	}
+	
 	//set_window_color(flags.current_window_color);
 }
 
@@ -499,16 +499,32 @@ void update_bluetooth_connection(bool is_connected){
 	layer_mark_dirty((Layer *)bluetooth_icon_layer);
 }
 
-void update_battery_state(BatteryChargeState battery_state){
-	gbitmap_destroy(battery_icon); 
+void animate_battery_on_charge(){
+	static int current_frame_number = 120;
 	
-	if ( (battery_state.is_plugged) && (battery_state.charge_percent == 100)) {
-		battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][11]);
-	} else {
-		battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][battery_state.charge_percent / 10]); 
+	if (current_frame_number > 10){
+		current_frame_number = flags.battery_percents / 10;
 	}
 	
+	gbitmap_destroy(battery_icon); 
+	battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][current_frame_number]); 
 	bitmap_layer_set_bitmap(battery_icon_layer, battery_icon);
+	layer_mark_dirty((Layer *)battery_icon_layer);
+	
+	current_frame_number ++;
+	
+	if (flags.is_charging && (flags.battery_percents < 100)){
+		app_timer_cancel(battery_animation_timer);
+		battery_animation_timer = app_timer_register(BATTERY_ANIMATION_DELAY_MS, animate_battery_on_charge, 0);
+		return;
+	}	
+	
+	update_battery_state(battery_state_service_peek());
+}
+
+void update_battery_state(BatteryChargeState battery_state){
+	flags.is_charging = battery_state.is_charging;
+	flags.battery_percents = battery_state.charge_percent;
 	
 	if (settings.show_battery_text){
 		snprintf(battery_text_buffer, sizeof(battery_text_buffer), "%d%%", battery_state.charge_percent);
@@ -516,6 +532,21 @@ void update_battery_state(BatteryChargeState battery_state){
 	} else {
 		text_layer_set_text(battery_text, EMPTY_STRING);
 	}
+	
+	if (battery_state.is_charging && (battery_state.charge_percent < 100)  ){
+		animate_battery_on_charge();
+		return;
+	}
+	
+	gbitmap_destroy(battery_icon); 
+	if ( (battery_state.is_plugged) && (battery_state.charge_percent == 100)) {
+		battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][11]);
+	} else {
+		battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][battery_state.charge_percent / 10]); 
+	}
+	bitmap_layer_set_bitmap(battery_icon_layer, battery_icon);
+	layer_mark_dirty((Layer *)battery_icon_layer);
+	
 }
 
 void update_date(struct tm* current_time, TimeUnits units_changed){
@@ -595,6 +626,7 @@ inline void deinitialization(void) {
 
 int main(void) {
 	initialization();
+	animate_battery_on_charge();
 	app_event_loop();
 	deinitialization();
 }

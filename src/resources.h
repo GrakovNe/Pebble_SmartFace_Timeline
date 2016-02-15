@@ -23,6 +23,8 @@
 
 #define EMPTY_STRING ""
 
+#define BATTERY_ANIMATION_DELAY_MS 800
+
 #define LANGUAGE_KEY                       0
 #define WINDOW_COLOR_KEY                   1
 #define TIME_TEXT_SIZE_KEY                 2
