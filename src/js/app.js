@@ -303,15 +303,13 @@ Pebble.addEventListener('ready',
 Pebble.addEventListener('appmessage',
   function(e) {
 	  var sendDataKey = e.payload.ASK_DATA_FROM_PHONE_INFO;
-	  
 	  switch(sendDataKey){
 		  case 0:
 			  sendSettings();
 			  break;
 		  case 1:
 			  sendAdditionalInfo();
-			  break;
-			  
+			  break;		  
 	  }
   }                     
 );

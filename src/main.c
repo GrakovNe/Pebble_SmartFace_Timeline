@@ -493,13 +493,10 @@ void update_bluetooth_connection(bool is_connected){
 	
 	update_bluetooth_text();
 	
-	if (flags.is_bluetooth_connected){
-		request_data_from_phone();
-	}
-	else {
+	if (!flags.is_bluetooth_connected){
 		app_timer_cancel(is_receiving_data);
 	}
-	
+		
 	gbitmap_destroy(bluetooth_icon); 
 	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
 	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
