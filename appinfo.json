@@ -1,5 +1,6 @@
 {
     "appKeys": {
+        "ASK_DATA_FROM_PHONE_INFO": 20,
         "BOTTOM_ADDITIONAL_STRING_TEXT_INFO": 12,
         "DATA_UPDATE_FREQUENCY_INFO": 16,
         "DATE_FORMAT_INFO": 3,
