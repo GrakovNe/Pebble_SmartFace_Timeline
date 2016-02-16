@@ -234,6 +234,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	if (time_text_size_tuple){
 		persist_write_int(TIME_TEXT_SIZE_KEY, (int)time_text_size_tuple->value->int32);
 		settings.time_text_size = (int)time_text_size_tuple->value->int32;
+		
 		//APP_LOG(APP_LOG_LEVEL_INFO, "text size settings received!");
 	}
 	
@@ -619,7 +620,7 @@ void initialization(void) {
 	/*open connection with a phone*/
 	app_message_register_inbox_received(inbox_received_callback);
 	//app_message_register_outbox_failed(outbox_failed_callback);
-	app_message_open(256, 16);
+	app_message_open(512, 64);
 	flags.vibes_allowed = 1;
 	//APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
 }
@@ -630,7 +631,7 @@ inline void deinitialization(void) {
 
 int main(void) {
 	initialization();
-	animate_battery_on_charge();
+	//animate_battery_on_charge();
 	app_event_loop();
 	deinitialization();
 }
