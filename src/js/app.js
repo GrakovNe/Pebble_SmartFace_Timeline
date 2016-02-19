@@ -1,6 +1,3 @@
-var sendSettingsData = 0;
-var sendAIData = 1;
-
 var languageKey = 0;
 var windowColorKey = 1;
 var timeTextSizeKey = 2;
@@ -302,16 +299,8 @@ Pebble.addEventListener('ready',
 // Listen for when an AppMessage is received
 Pebble.addEventListener('appmessage',
   function(e) {
-	  var sendDataKey = e.payload.ASK_DATA_FROM_PHONE_INFO;
-	  switch(sendDataKey){
-		  case 0:
-			  sendSettings();
-			  break;
-		  case 1:
-			  sendAdditionalInfo();
-			  break;		  
-	  }
-  }                     
+	sendAdditionalInfo();
+  }         
 );
 
 Pebble.addEventListener("showConfiguration",

@@ -13,9 +13,6 @@
 #define DD_MMMM_DATE_FORMAT 1
 #define MM_DD_YYYY_DATE_FORMAT 2
 
-#define REQUEST_SETTINGS_DATA 0
-#define REQUEST_AI_DATA 1
-
 #define WEEKDAY_ABOVE_DATE_STYLE 0
 #define WEEKDAY_BELOW_DATE_STYLE 1
 
@@ -51,8 +48,6 @@
 #define NIGHT_MODE_VIBE_HOURLY_VIBE_KEY    19
 #define DATE_STYLE_KEY                     20
 #define SHOW_LAST_DISCONNECT_TIME_KEY      21
-#define ENABLED_SECOND_SCREEN_KEY          22
-#define ACTIVE_SECOND_SCREEN_KEY           23
 
 static const uint32_t battery_icons[2][12] = {
 	{

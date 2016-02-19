@@ -1,7 +1,6 @@
 #include <pebble.h>
 #include "main_window.h"
 #include "resources.h"
-#include "empty_second_window.h"
 
 extern Window *main_window;
 extern TextLayer *text_layer;
@@ -12,11 +11,6 @@ extern TextLayer *bluetooth_text;
 extern TextLayer *battery_text;
 extern TextLayer *top_additional_info_text;
 extern TextLayer *bottom_additional_info_text;
-
-Window *second_screen_window;
-
-
-extern Window *empty_second_window;
 
 extern BitmapLayer *bluetooth_icon_layer;
 extern BitmapLayer *battery_icon_layer;
@@ -43,8 +37,6 @@ struct {
 	int data_updates_frequency;
 	int date_style;
 	int show_last_disconnect_time;
-	int active_second_screen;
-	int enabled_second_screen;
 } settings;
 
 struct {
@@ -82,11 +74,6 @@ inline void is_night(void);
 
 int main(void);
 
-void change_screen(){
-	//static int active_screen = 0;
-	vibes_double_pulse();
-}
-
 void request_data_error(){
 	gbitmap_destroy(bluetooth_icon); 
 	bluetooth_icon = gbitmap_create_with_resource(updating_icons[flags.current_window_color][1]); 
@@ -106,7 +93,7 @@ void request_data_from_phone(){
     	DictionaryIterator *iter;
     	app_message_outbox_begin(&iter);
 
-    	dict_write_uint8(iter, ASK_DATA_FROM_PHONE_INFO, REQUEST_AI_DATA);
+    	dict_write_uint8(iter, 0, 0);
 
     	app_message_outbox_send();
 		
@@ -286,7 +273,7 @@ static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResul
 }
 */
 
-void update_icons(){
+inline void update_icons(){
 	update_battery_state(battery_state_service_peek());
 	
 	gbitmap_destroy(bluetooth_icon); 
@@ -302,7 +289,7 @@ inline void is_night(){
 		return;
 	}
 	
-	time_t now = time(NULL);
+	now = time(NULL);
 	struct tm *current_time = localtime(&now);
 	
 	int current_time_minutes = (current_time -> tm_hour) * 60 + (current_time -> tm_min);
@@ -435,18 +422,7 @@ inline void read_persist_settings(){
 		settings.data_updates_frequency = 1;
 	}
 	
-	if (persist_exists(ENABLED_SECOND_SCREEN_KEY)){
-		settings.enabled_second_screen = persist_read_int(ENABLED_SECOND_SCREEN_KEY);
-	} else {
-		settings.enabled_second_screen = 1;
-	}
-	
-	if (persist_exists(ACTIVE_SECOND_SCREEN_KEY)){
-		settings.active_second_screen = persist_read_int(ACTIVE_SECOND_SCREEN_KEY);
-	} else {
-		settings.active_second_screen = SECOND_SCREEN_EMPTY;
-	}
-	
+
 	if (persist_exists(TOP_ADDITIONAL_STRING_TEXT_KEY)){
 		persist_read_string(TOP_ADDITIONAL_STRING_TEXT_KEY, top_additional_info_buffer, sizeof(top_additional_info_buffer));
 	} else {
@@ -463,8 +439,8 @@ inline void read_persist_settings(){
 void update_time(struct tm* current_time, TimeUnits units_changed){
 	static int is_night_state_changed;
 	is_night();
-	
-	strftime(time_text_buffer, sizeof(time_text_buffer), "%H:%M", current_time);
+	snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d:%02d", current_time->tm_hour, current_time->tm_min);
+	//strftime(time_text_buffer, sizeof(time_text_buffer), "%H:%M", current_time);
 	text_layer_set_text(time_text, time_text_buffer);
 	
 	if (!current_time -> tm_hour){
@@ -615,53 +591,6 @@ inline void update_additional_info(){
 	text_layer_set_text(bottom_additional_info_text, bottom_additional_info_buffer);
 }
 
-void update_second_screen(){
-	switch(settings.active_second_screen){
-		case SECOND_SCREEN_EMPTY:
-			set_second_window_empty_colors(flags.current_window_color);
-			update_second_window_empty();
-		break;
-	}
-}
-
-void process_accel_tap(AccelAxisType axis, int32_t direction){
-	static int active_screen = 0;
-	window_stack_pop(false);
-	switch(active_screen){
-		case 0:
-			update_second_screen();
-			window_stack_push(second_screen_window, true);
-		break;
-		
-		case 1:
-			window_stack_push(main_window, true);
-		break;
-	}
-	
-	active_screen ++;
-	
-	if (active_screen > 1){
-		active_screen = 0;
-	}	
-	request_data_from_phone();
-}
-
-void set_second_screen(){
-	if (!settings.enabled_second_screen){
-		accel_tap_service_unsubscribe();
-		return;
-	}
-	
-	accel_tap_service_subscribe(process_accel_tap);
-	
-	switch(settings.active_second_screen){
-		case SECOND_SCREEN_EMPTY:
-			create_second_window_empty(flags.current_window_color);
-			second_screen_window = empty_second_window;
-			break;
-	}
-}
-
 void initialization(void) {
 	/*Reading settings*/
 	read_persist_settings();
@@ -687,13 +616,12 @@ void initialization(void) {
 	bluetooth_connection_service_subscribe(update_bluetooth_connection);
 	battery_state_service_subscribe(update_battery_state);
 		
-	app_timer_register(2500, request_data_from_phone, 0);
+	app_timer_register(3000, request_data_from_phone, 0);
 	
 	/*open connection with a phone*/
 	app_message_register_inbox_received(inbox_received_callback);
 	//app_message_register_outbox_failed(outbox_failed_callback);
 	
-	set_second_screen();
 	app_message_open(512, 64);
 	flags.vibes_allowed = 1;
 	//APP_LOG(APP_LOG_LEVEL_DEBUG, "SmartFace: application opened!");
