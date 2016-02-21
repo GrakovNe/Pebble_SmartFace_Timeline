@@ -113,13 +113,13 @@ static const char weekday_names[3][7][24] = {
 		"SATURDAY"
 	},
 	{
-		"BOCKPECEHЬE",
-		"ПOHEДEЛЬHИK",
-		"BTOPHИK",
-		"CPEДA",
-		"ЧETBEPГ",
-		"ПЯTHИЦA",
-		"CYББOTA"
+		"ВОСКРЕСЕНЬЕ",
+		"ПОНЕДЕЛЬНИК",
+		"ВТОРНИК",
+		"СРЕДА",
+		"ЧЕТВЕРГ",
+		"ПЯТНИЦА",
+		"СУББОТА"
 	},	
 	{ 
 		"SONNTAG", 
@@ -160,7 +160,6 @@ static const char month_names[3][12][24] = {
 		"ОКТЯБРЯ",
 		"НОЯБРЯ",
 		"ДЕКАБРЯ"
-		
 	},
 		
 	{ 
