@@ -1,5 +1,6 @@
 {
     "appKeys": {
+        "BLINK_COLON_INFO": 20,
         "BOTTOM_ADDITIONAL_STRING_TEXT_INFO": 12,
         "DATA_UPDATE_FREQUENCY_INFO": 16,
         "DATE_FORMAT_INFO": 3,
@@ -14,6 +15,7 @@
         "NIGTH_MODE_VIBE_ON_EVENT_INFO": 15,
         "SHOW_BATTERY_TEXT_INFO": 4,
         "SHOW_BLUETOOTH_TEXT_INFO": 5,
+        "SHOW_LAST_DISCONNECT_TIME_INFO": 19,
         "TIME_TEXT_SIZE_INFO": 2,
         "TOP_ADDITIONAL_STRING_TEXT_INFO": 11,
         "VIBE_BLUETOOTH_STATE_CHANGE_INFO": 7,
@@ -30,6 +32,13 @@
     "resources": {
         "media": [
             {
+                "characterRegex": "[0-9: ]",
+                "file": "fonts/smallDigits_fixed.ttf",
+                "name": "IMAGINE_SMALL_37",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
                 "file": "images/app_logo.png",
                 "memoryFormat": "1Bit",
                 "menuIcon": true,
@@ -45,37 +54,16 @@
                 "type": "bitmap"
             },
             {
-                "characterRegex": "[0-9:]",
+                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
                 "file": "fonts/bigDigits.ttf",
-                "name": "IMAGINE_BIG_43",
+                "name": "IMAGINE_BIG_41",
                 "targetPlatforms": null,
                 "type": "font"
             },
             {
                 "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
                 "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_14",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:]",
-                "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_43",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9:]",
-                "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_37",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
-                "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_17",
+                "name": "IMAGINE_FONT_23",
                 "targetPlatforms": null,
                 "type": "font"
             },
@@ -89,7 +77,28 @@
             {
                 "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
                 "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_23",
+                "name": "IMAGINE_FONT_17",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9 :]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_37",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[0-9: ]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_43",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_14",
                 "targetPlatforms": null,
                 "type": "font"
             },

@@ -22,6 +22,7 @@ var topAdditionalInfoURLKey = 20;
 var bottomAdditionalInfoURLKey = 21;
 var dateStyleKey = 22;
 var showLastDisconnectTimeKey = 23;
+var blinkColonKey = 24;
 
 var language;
 var windowColor;
@@ -45,6 +46,7 @@ var topAdditionalInfoURL;
 var bottomAdditionalInfoURL;
 var dateStyle;
 var showLastDisconnectTime;
+var blinkColon;
 
 var weatherLocation = "Omsk";
 var weatherTemperatureUnits = "C";
@@ -74,6 +76,7 @@ function readPersistSettings(){
 	topAdditionalInfoURL = localStorage.getItem(topAdditionalInfoURLKey);
 	bottomAdditionalInfoURL = localStorage.getItem(bottomAdditionalInfoURLKey);
 	showLastDisconnectTime = localStorage.getItem(showLastDisconnectTimeKey);
+	blinkColon = localStorage.getItem(blinkColonKey);
 	
 	if (!language){
 		language = 1;
@@ -163,6 +166,10 @@ function readPersistSettings(){
 		weatherTemperatureUnits = "C";
 	}
 	
+	if (!blinkColon){
+		blinkColon = 0;
+	}
+	
 	if (!topAdditionalInfoURL){
 		topAdditionalInfoURL = "http://grakovne.org/pebble/smartface_timeline/scripts/current_weather.php" + "?language=" + "0" + "&location=" + "Omsk" + "&weather_units=" + "C";
 	}
@@ -190,8 +197,9 @@ function readPersistSettings(){
 	console.log("nightModeVibeOnEvent " + nightModeVibeOnEvent);
 	console.log("dataUpdatesFrequency " + dataUpdatesFrequency);
 	console.log("weatherTemperatureUnits " + weatherTemperatureUnits);
-	console.log("location " + weatherLocation);*/
-
+	console.log("location " + weatherLocation);
+	console.log("blink colon " + blinkColon);
+	console.log("show last disconnect time " + showLastDisconnectTime);*/
 }
 
 function getHttpData(url) {
@@ -259,7 +267,8 @@ function sendSettings(){
 		"DATA_UPDATE_FREQUENCY_INFO": parseInt(dataUpdatesFrequency),
 		"NIGHT_MODE_HOURLY_VIBE_INFO": parseInt(nightModeHourlyVibe),
 		"DATE_STYLE_INFO": parseInt(dateStyle),
-		"SHOW_LAST_DISCONNECT_TIME_INFO": parseInt(showLastDisconnectTime)
+		"SHOW_LAST_DISCONNECT_TIME_INFO": parseInt(showLastDisconnectTime),
+		"BLINK_COLON_INFO": parseInt(blinkColon)
       };
       Pebble.sendAppMessage(dictionary,
         function(e) {
@@ -349,8 +358,8 @@ Pebble.addEventListener("webviewclosed",
 	  localStorage.setItem(topAdditionalInfoURLKey, configuration.topAdditionalStringURL);
 	  localStorage.setItem(bottomAdditionalInfoURLKey, configuration.bottomAdditionalStringURL);
 	  localStorage.setItem(showLastDisconnectTimeKey, configuration.showLastDisconnectTime);
-	  
-	  
+	  localStorage.setItem(blinkColonKey, configuration.blinkColon);
+	 
 	  readPersistSettings();
 	  getAdditionalInfo();
 	  sendSettings();

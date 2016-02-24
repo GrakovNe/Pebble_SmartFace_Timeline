@@ -69,12 +69,12 @@ void create_texts(int text_size, int window_color){
 	
 	/*time text*/
 	if (text_size == BIG_TIME_TEXT){	// large font 
-		time_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_BIG_43));
-  		time_text = text_layer_create(GRect(2, 38, 145, 50)); //34
+		time_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_BIG_41));
+  		time_text = text_layer_create(GRect(2, 40, 145, 50)); //34
 		
 	}
 	if (text_size == SMALL_TIME_TEXT){
-		time_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_FONT_37));
+		time_text_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_IMAGINE_SMALL_37));
   		time_text = text_layer_create(GRect(0, 46, 145, 50)); //34
 		text_layer_set_text_alignment(time_text, GTextAlignmentCenter);
 		text_layer_set_font(time_text, time_text_font);

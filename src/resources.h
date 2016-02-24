@@ -48,6 +48,7 @@
 #define NIGHT_MODE_VIBE_HOURLY_VIBE_KEY    19
 #define DATE_STYLE_KEY                     20
 #define SHOW_LAST_DISCONNECT_TIME_KEY      21
+#define BLINK_COLON_KEY                    22
 
 static const uint32_t battery_icons[2][12] = {
 	{
@@ -220,6 +221,7 @@ enum {
 	NIGHT_MODE_HOURLY_VIBE_INFO           = 17,
 	DATE_STYLE_INFO                       = 18,
 	SHOW_LAST_DISCONNECT_TIME_INFO        = 19,
-	ASK_DATA_FROM_PHONE_INFO              = 20,
+	BLINK_COLON_INFO                      = 20,
+	ASK_DATA_FROM_PHONE_INFO              = 99,
 };
 

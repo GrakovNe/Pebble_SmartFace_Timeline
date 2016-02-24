@@ -37,6 +37,7 @@ struct {
 	int data_updates_frequency;
 	int date_style;
 	int show_last_disconnect_time;
+	int blink_colon;
 } settings;
 
 struct {
@@ -46,6 +47,7 @@ struct {
 	int is_night_now;
 	int is_charging;
 	int battery_percents;
+	int hourly_vibes_allowed;
 } flags;
 
 char top_additional_info_buffer    [50];
@@ -71,6 +73,7 @@ inline void deinitialization(void);
 void update_icons(void);
 void update_bluetooth_text(void);
 inline void is_night(void);
+inline void subscribe_to_time_update_service(void);
 
 int main(void);
 
@@ -124,6 +127,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	Tuple *night_mode_vibe_on_event_tuple= dict_find(iterator, NIGTH_MODE_VIBE_ON_EVENT_INFO);
 	Tuple *data_updates_frequency_tuple = dict_find(iterator, DATA_UPDATE_FREQUENCY_INFO);
 	Tuple *show_last_disconnect_time_tuple = dict_find(iterator, SHOW_LAST_DISCONNECT_TIME_INFO);
+	Tuple *blink_colon_tuple = dict_find(iterator, BLINK_COLON_INFO);
 	
 	flags.vibes_allowed = 0;
 	
@@ -250,13 +254,19 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 		//APP_LOG(APP_LOG_LEVEL_INFO, "language settings received!");
 	}
 	
-	flags.vibes_allowed = 1;
+	if (blink_colon_tuple){
+		persist_write_int(BLINK_COLON_KEY, (int)blink_colon_tuple->value->int32);
+		settings.blink_colon = (int)blink_colon_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "blink colon settings received!");
+	}
 	
 	app_timer_cancel(is_receiving_data);
 	now = time(NULL);
-	update_time(localtime(&now), SECOND_UNIT);
+	subscribe_to_time_update_service();
 	update_date(localtime(&now), SECOND_UNIT);
 	update_icons();
+	
+	flags.vibes_allowed = 1;
 	
 	/*Сreating the timer again*/
 	
@@ -317,6 +327,12 @@ inline void read_persist_settings(){
 		settings.language = persist_read_int(LANGUAGE_KEY);
 	} else {
 		settings.language = ENGLISH_LANGUAGE;
+	}
+	
+	if (persist_exists(BLINK_COLON_KEY)){
+		settings.blink_colon = persist_read_int(BLINK_COLON_KEY);
+	} else {
+		settings.blink_colon = 0;
 	}
 	
 	if (persist_exists(WINDOW_COLOR_KEY)){
@@ -436,19 +452,13 @@ inline void read_persist_settings(){
 	}
 }
 
-void update_time(struct tm* current_time, TimeUnits units_changed){
+void update_time_routine(struct tm* current_time){
 	static int is_night_state_changed;
 	is_night();
-	snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d:%02d", current_time->tm_hour, current_time->tm_min);
-	//strftime(time_text_buffer, sizeof(time_text_buffer), "%H:%M", current_time);
-	text_layer_set_text(time_text, time_text_buffer);
 	
-	if (!current_time -> tm_hour){
-		update_date(current_time, SECOND_UNIT);
-	}
-	
-	if ((flags.vibes_allowed) && (settings.vibe_hourly_vibe) && !(current_time-> tm_min) && (!flags.is_night_now || settings.night_mode_vibe_hourly_vibe) ){
+	if ((flags.hourly_vibes_allowed)&&(flags.vibes_allowed) && (settings.vibe_hourly_vibe) && !(current_time-> tm_min) && (!flags.is_night_now || settings.night_mode_vibe_hourly_vibe) ){
 		vibes_double_pulse();
+		flags.hourly_vibes_allowed = 0;
 	}
 			
 	if ( flags.is_night_now && (settings.night_mode_display_invert) ){
@@ -462,6 +472,40 @@ void update_time(struct tm* current_time, TimeUnits units_changed){
 	if (is_night_state_changed != flags.is_night_now){
 		update_icons();
 		is_night_state_changed = flags.is_night_now;
+	}
+	
+	if (current_time -> tm_min){
+		flags.hourly_vibes_allowed = 1;
+	}
+}
+
+void update_time_minutes(struct tm* current_time, TimeUnits units_changed){
+	update_time_routine(current_time);
+	snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d:%02d", current_time->tm_hour, current_time->tm_min);
+	//strftime(time_text_buffer, sizeof(time_text_buffer), "%H:%M", current_time);
+	text_layer_set_text(time_text, time_text_buffer);
+	
+	if (!current_time -> tm_hour){
+		update_date(current_time, SECOND_UNIT);
+	}
+}
+
+void update_time_seconds(struct tm* current_time, TimeUnits units_changed){
+	update_time_routine(current_time);
+	
+	if (current_time -> tm_sec % 2){
+		snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d:%02d", current_time->tm_hour, current_time->tm_min);
+	}
+	
+	else {
+		snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d %02d", current_time->tm_hour, current_time->tm_min);
+	}
+	
+	
+	text_layer_set_text(time_text, time_text_buffer);
+	
+	if (!current_time -> tm_hour){
+		update_date(current_time, SECOND_UNIT);
 	}
 }
 
@@ -591,6 +635,17 @@ inline void update_additional_info(){
 	text_layer_set_text(bottom_additional_info_text, bottom_additional_info_buffer);
 }
 
+inline void subscribe_to_time_update_service(){
+	if (settings.blink_colon){
+		tick_timer_service_subscribe(SECOND_UNIT, &update_time_seconds);
+	}
+	else {
+		tick_timer_service_subscribe(MINUTE_UNIT, &update_time_minutes);
+	}
+	
+	update_time_minutes(localtime(&now), SECOND_UNIT);
+}
+
 void initialization(void) {
 	/*Reading settings*/
 	read_persist_settings();
@@ -600,7 +655,7 @@ void initialization(void) {
 	
 	/*Updateing time and date*/
 	now = time(NULL);
-    update_time(localtime(&now), SECOND_UNIT);
+    update_time_minutes(localtime(&now), SECOND_UNIT);
 	update_date(localtime(&now), SECOND_UNIT);
 	
 	/*Showing main window*/
@@ -612,7 +667,7 @@ void initialization(void) {
 	update_additional_info();
 	
 	/*Subscribing for a timers and events*/
-	tick_timer_service_subscribe(MINUTE_UNIT, &update_time);
+	subscribe_to_time_update_service();
 	bluetooth_connection_service_subscribe(update_bluetooth_connection);
 	battery_state_service_subscribe(update_battery_state);
 		
