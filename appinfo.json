@@ -6,6 +6,7 @@
         "DATE_FORMAT_INFO": 3,
         "DATE_STYLE_INFO": 18,
         "LANGUAGE_INFO": 0,
+        "NIGHT_MODE_BLINK_COLON": 21,
         "NIGHT_MODE_ENABLED_INFO": 8,
         "NIGHT_MODE_HOURLY_VIBE_INFO": 17,
         "NIGHT_MODE_STARTED_INFO": 9,

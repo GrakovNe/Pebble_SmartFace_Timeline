@@ -38,6 +38,7 @@ struct {
 	int date_style;
 	int show_last_disconnect_time;
 	int blink_colon;
+	int night_mode_blink_colon;
 } settings;
 
 struct {
@@ -128,6 +129,8 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	Tuple *data_updates_frequency_tuple = dict_find(iterator, DATA_UPDATE_FREQUENCY_INFO);
 	Tuple *show_last_disconnect_time_tuple = dict_find(iterator, SHOW_LAST_DISCONNECT_TIME_INFO);
 	Tuple *blink_colon_tuple = dict_find(iterator, BLINK_COLON_INFO);
+	Tuple *night_mode_blink_colon_tuple = dict_find(iterator, NIGHT_MODE_BLINK_COLON_INFO);
+
 	
 	flags.vibes_allowed = 0;
 	
@@ -149,6 +152,15 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 		persist_write_int(DATA_UPDATES_FREQUENCY_KEY, (int)data_updates_frequency_tuple->value->int32);
 		settings.data_updates_frequency = (int)data_updates_frequency_tuple->value->int32;
 		//APP_LOG(APP_LOG_LEVEL_INFO, "data update frequency settings received!");
+	}
+	
+	if (night_mode_blink_colon_tuple){
+		char buffer [12];
+	snprintf(buffer, sizeof(buffer), "data: %d", settings.night_mode_blink_colon);
+	APP_LOG(APP_LOG_LEVEL_INFO, buffer);
+		persist_write_int(NIGHT_MODE_BLINK_COLON_KEY, (int)night_mode_blink_colon_tuple->value->int32);
+		settings.night_mode_blink_colon = (int)night_mode_blink_colon_tuple->value->int32;
+		//APP_LOG(APP_LOG_LEVEL_INFO, "night blinking settings received!");
 	}
 	
 	if (show_last_disconnect_time_tuple){
@@ -329,6 +341,12 @@ inline void read_persist_settings(){
 		settings.language = ENGLISH_LANGUAGE;
 	}
 	
+	if (persist_exists(NIGHT_MODE_BLINK_COLON_KEY)){
+		settings.night_mode_blink_colon = persist_read_int(NIGHT_MODE_BLINK_COLON_KEY);
+	} else {
+		settings.night_mode_blink_colon = 0;
+	}
+	
 	if (persist_exists(BLINK_COLON_KEY)){
 		settings.blink_colon = persist_read_int(BLINK_COLON_KEY);
 	} else {
@@ -471,6 +489,7 @@ void update_time_routine(struct tm* current_time){
 	
 	if (is_night_state_changed != flags.is_night_now){
 		update_icons();
+		subscribe_to_time_update_service();
 		is_night_state_changed = flags.is_night_now;
 	}
 	
@@ -636,14 +655,14 @@ inline void update_additional_info(){
 }
 
 inline void subscribe_to_time_update_service(){
-	if (settings.blink_colon){
+	if ( (settings.blink_colon) && (!flags.is_night_now || settings.night_mode_blink_colon) ) {
 		tick_timer_service_subscribe(SECOND_UNIT, &update_time_seconds);
 	}
 	else {
 		tick_timer_service_subscribe(MINUTE_UNIT, &update_time_minutes);
 	}
 	
-	update_time_minutes(localtime(&now), SECOND_UNIT);
+	//update_time_minutes(localtime(&now), SECOND_UNIT);
 }
 
 void initialization(void) {

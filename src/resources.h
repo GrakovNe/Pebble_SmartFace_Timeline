@@ -49,6 +49,7 @@
 #define DATE_STYLE_KEY                     20
 #define SHOW_LAST_DISCONNECT_TIME_KEY      21
 #define BLINK_COLON_KEY                    22
+#define NIGHT_MODE_BLINK_COLON_KEY         23
 
 static const uint32_t battery_icons[2][12] = {
 	{
@@ -222,6 +223,7 @@ enum {
 	DATE_STYLE_INFO                       = 18,
 	SHOW_LAST_DISCONNECT_TIME_INFO        = 19,
 	BLINK_COLON_INFO                      = 20,
+	NIGHT_MODE_BLINK_COLON_INFO           = 21,
 	ASK_DATA_FROM_PHONE_INFO              = 99,
 };
 

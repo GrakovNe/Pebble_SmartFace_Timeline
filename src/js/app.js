@@ -23,6 +23,7 @@ var bottomAdditionalInfoURLKey = 21;
 var dateStyleKey = 22;
 var showLastDisconnectTimeKey = 23;
 var blinkColonKey = 24;
+var nightModeBlinkColonKey = 25;
 
 var language;
 var windowColor;
@@ -47,6 +48,7 @@ var bottomAdditionalInfoURL;
 var dateStyle;
 var showLastDisconnectTime;
 var blinkColon;
+var nightModeBlinkColon;
 
 var weatherLocation = "Omsk";
 var weatherTemperatureUnits = "C";
@@ -77,9 +79,14 @@ function readPersistSettings(){
 	bottomAdditionalInfoURL = localStorage.getItem(bottomAdditionalInfoURLKey);
 	showLastDisconnectTime = localStorage.getItem(showLastDisconnectTimeKey);
 	blinkColon = localStorage.getItem(blinkColonKey);
+	nightModeBlinkColon = localStorage.getItem(nightModeBlinkColonKey);
 	
 	if (!language){
 		language = 1;
+	}
+	
+	if (!nightModeBlinkColon){
+		nightModeBlinkColon = 0;
 	}
 	
 	if (!showLastDisconnectTime){
@@ -246,7 +253,7 @@ function getAdditionalInfo(){
 
 function sendSettings(){
 	getAdditionalInfo();
-	
+	console.log(parseInt(nightModeBlinkColon));
 	var dictionary = {
 		"LANGUAGE_INFO": parseInt(language),
 		"WINDOW_COLOR_INFO": parseInt(windowColor), 
@@ -268,7 +275,8 @@ function sendSettings(){
 		"NIGHT_MODE_HOURLY_VIBE_INFO": parseInt(nightModeHourlyVibe),
 		"DATE_STYLE_INFO": parseInt(dateStyle),
 		"SHOW_LAST_DISCONNECT_TIME_INFO": parseInt(showLastDisconnectTime),
-		"BLINK_COLON_INFO": parseInt(blinkColon)
+		"BLINK_COLON_INFO": parseInt(blinkColon),
+		"NIGHT_MODE_BLINK_COLON": parseInt(nightModeBlinkColon)
       };
       Pebble.sendAppMessage(dictionary,
         function(e) {
@@ -359,6 +367,8 @@ Pebble.addEventListener("webviewclosed",
 	  localStorage.setItem(bottomAdditionalInfoURLKey, configuration.bottomAdditionalStringURL);
 	  localStorage.setItem(showLastDisconnectTimeKey, configuration.showLastDisconnectTime);
 	  localStorage.setItem(blinkColonKey, configuration.blinkColon);
+	  localStorage.setItem(nightModeBlinkColonKey, configuration.nightModeBlinkColon);
+	  
 	 
 	  readPersistSettings();
 	  getAdditionalInfo();
