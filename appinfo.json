@@ -1,5 +1,6 @@
 {
     "appKeys": {
+        "ASK_DATA_FROM_PHONE_INFO": 99,
         "BLINK_COLON_INFO": 20,
         "BOTTOM_ADDITIONAL_STRING_TEXT_INFO": 12,
         "DATA_UPDATE_FREQUENCY_INFO": 16,
@@ -64,21 +65,7 @@
             {
                 "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
                 "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_23",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
-                "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_12",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
-                "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_17",
+                "name": "IMAGINE_FONT_14",
                 "targetPlatforms": null,
                 "type": "font"
             },
@@ -90,16 +77,16 @@
                 "type": "font"
             },
             {
-                "characterRegex": "[0-9: ]",
+                "characterRegex": "[0-9 / - \\.ABCD\u00c4EFGHIJKLMNO\u0410P\u0411R\u0412S\u0413T\u0414U\u0415VW\u0418Y\u041aZ\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0426\u0427\u042c\u042e\u042f]",
                 "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_43",
+                "name": "IMAGINE_FONT_17",
                 "targetPlatforms": null,
                 "type": "font"
             },
             {
-                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
+                "characterRegex": "[0-9%!STEHIKLNO]",
                 "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_14",
+                "name": "IMAGINE_FONT_12",
                 "targetPlatforms": null,
                 "type": "font"
             },

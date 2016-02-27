@@ -47,14 +47,15 @@ struct {
 	int vibes_allowed;
 	int is_night_now;
 	int is_charging;
+	int is_plugged;
 	int battery_percents;
 	int hourly_vibes_allowed;
 } flags;
 
 char top_additional_info_buffer    [50];
 char bottom_additional_info_buffer [50];
-char time_text_buffer              [10];
-char date_text_buffer              [26];
+char time_text_buffer              [6];
+char date_text_buffer              [25];
 char battery_text_buffer           [5];
 char bluetooth_text_buffer         [10];
 
@@ -65,16 +66,31 @@ time_t now;
 
 void update_time(struct tm* current_time, TimeUnits units_changed);
 void update_date(struct tm* current_time, TimeUnits units_changed);
+
 void update_bluetooth_connection(bool is_connected);
 void update_battery_state(BatteryChargeState battery_state);
+
 inline void update_additional_info(void);
 inline void read_persist_settings(void);
+
 inline void initialization(void);
 inline void deinitialization(void);
-void update_icons(void);
-void update_bluetooth_text(void);
+
 inline void is_night(void);
+
 inline void subscribe_to_time_update_service(void);
+
+void update_battery_icon(void);
+void update_battery_text(void);
+
+void update_bluetooth_icon(void);
+void update_bluetooth_text(void);
+
+inline void update_bar(void);
+
+void request_data_error();
+void request_data_from_phone();
+static void inbox_received_callback(DictionaryIterator *iterator, void *context);
 
 int main(void);
 
@@ -88,7 +104,7 @@ void request_data_error(){
 void request_data_from_phone(){
 	if ( (!flags.is_night_now || settings.night_mode_update_info) && (flags.is_bluetooth_connected) ){
 		is_receiving_data = app_timer_register(RECEIVING_LATENCY_TIME, request_data_error, 0);
-	
+		
 		gbitmap_destroy(bluetooth_icon); 
 		bluetooth_icon = gbitmap_create_with_resource(updating_icons[flags.current_window_color][0]); 
 		bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
@@ -96,18 +112,14 @@ void request_data_from_phone(){
 	
     	DictionaryIterator *iter;
     	app_message_outbox_begin(&iter);
-
-    	dict_write_uint8(iter, 0, 0);
-
+    	dict_write_uint8(iter, ASK_DATA_FROM_PHONE_INFO, 0);
     	app_message_outbox_send();
 		
 		//APP_LOG(APP_LOG_LEVEL_INFO, "SmartFace: data is requested!");
-		
-		
 	}
 }
 
-static void inbox_received_callback(DictionaryIterator *iterator, void *context) {	
+static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
  	Tuple *language_tuple = dict_find(iterator, LANGUAGE_INFO);
 	Tuple *window_color_tuple = dict_find(iterator, WINDOW_COLOR_INFO);
 	Tuple *time_text_size_tuple = dict_find(iterator, TIME_TEXT_SIZE_INFO);
@@ -131,7 +143,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	Tuple *blink_colon_tuple = dict_find(iterator, BLINK_COLON_INFO);
 	Tuple *night_mode_blink_colon_tuple = dict_find(iterator, NIGHT_MODE_BLINK_COLON_INFO);
 
-	
 	flags.vibes_allowed = 0;
 	
 	if (top_additional_string_text_tuple){
@@ -155,9 +166,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	}
 	
 	if (night_mode_blink_colon_tuple){
-		char buffer [12];
-	snprintf(buffer, sizeof(buffer), "data: %d", settings.night_mode_blink_colon);
-	APP_LOG(APP_LOG_LEVEL_INFO, buffer);
 		persist_write_int(NIGHT_MODE_BLINK_COLON_KEY, (int)night_mode_blink_colon_tuple->value->int32);
 		settings.night_mode_blink_colon = (int)night_mode_blink_colon_tuple->value->int32;
 		//APP_LOG(APP_LOG_LEVEL_INFO, "night blinking settings received!");
@@ -225,7 +233,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	if (show_bluetooth_text_tuple){
 		persist_write_int(SHOW_BLUETOOTH_TEXT_KEY, (int)show_bluetooth_text_tuple->value->int32);
 		settings.show_bluetooth_text = (int)show_bluetooth_text_tuple->value->int32;
-		update_bluetooth_text();
 		//APP_LOG(APP_LOG_LEVEL_INFO, "bluetooth text settings received!");
 	}
 	
@@ -250,7 +257,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	if (time_text_size_tuple){
 		persist_write_int(TIME_TEXT_SIZE_KEY, (int)time_text_size_tuple->value->int32);
 		settings.time_text_size = (int)time_text_size_tuple->value->int32;
-		
 		//APP_LOG(APP_LOG_LEVEL_INFO, "text size settings received!");
 	}
 	
@@ -273,39 +279,31 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	}
 	
 	app_timer_cancel(is_receiving_data);
+
 	now = time(NULL);
-	subscribe_to_time_update_service();
 	update_date(localtime(&now), SECOND_UNIT);
-	update_icons();
 	
 	flags.vibes_allowed = 1;
 	
 	/*Сreating the timer again*/
 	
-	if (settings.data_updates_frequency != 30){
+	if (settings.data_updates_frequency != NEVER_REQUEST_DATA){
 		app_timer_register(MILLS_IN_HOUR / settings.data_updates_frequency, request_data_from_phone, 0);
 	}
 	
+	//subscribe_to_time_update_service();
 	//set_window_color(flags.current_window_color);
 }
 
-/*
-static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
-}
-*/
-
-inline void update_icons(){
-	update_battery_state(battery_state_service_peek());
+inline void update_bar(){
+	update_battery_icon();
+	update_battery_text();
 	
-	gbitmap_destroy(bluetooth_icon); 
-	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
-	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
-	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+	update_bluetooth_icon();
+	update_bluetooth_text();
 }
 
 inline void is_night(){
-	
 	if (!settings.night_mode_enabled){
 		flags.is_night_now = 0;
 		return;
@@ -331,7 +329,6 @@ inline void is_night(){
 	}
 	
 	flags.is_night_now = 0;
-	
 }
 
 inline void read_persist_settings(){
@@ -466,36 +463,40 @@ inline void read_persist_settings(){
 	if (persist_exists(BOTTOM_ADDITIONAL_STRING_TEXT_KEY)){
 		persist_read_string(BOTTOM_ADDITIONAL_STRING_TEXT_KEY, bottom_additional_info_buffer, sizeof(bottom_additional_info_buffer));
 	} else {
-		strcpy(bottom_additional_info_buffer, "TimeLine");
+		strcpy(bottom_additional_info_buffer, "GrakovNe");
 	}
 }
 
 void update_time_routine(struct tm* current_time){
-	static int is_night_state_changed;
 	is_night();
+	static int is_state_changed = 99;
 	
-	if ((flags.hourly_vibes_allowed)&&(flags.vibes_allowed) && (settings.vibe_hourly_vibe) && !(current_time-> tm_min) && (!flags.is_night_now || settings.night_mode_vibe_hourly_vibe) ){
+	if ((flags.hourly_vibes_allowed) && (flags.vibes_allowed) && (settings.vibe_hourly_vibe) && !(current_time-> tm_min) && (!flags.is_night_now || settings.night_mode_vibe_hourly_vibe) ){
 		vibes_double_pulse();
 		flags.hourly_vibes_allowed = 0;
 	}
-			
-	if ( flags.is_night_now && (settings.night_mode_display_invert) ){
-		flags.current_window_color = !settings.window_color;
-		set_window_color(!settings.window_color);
-	} else {
-		flags.current_window_color = settings.window_color;
-		set_window_color(settings.window_color);
-	}
-	
-	if (is_night_state_changed != flags.is_night_now){
-		update_icons();
-		subscribe_to_time_update_service();
-		is_night_state_changed = flags.is_night_now;
-	}
-	
+		
 	if (current_time -> tm_min){
 		flags.hourly_vibes_allowed = 1;
 	}
+	
+	if ( flags.is_night_now && (settings.night_mode_display_invert) ){
+		flags.current_window_color = !settings.window_color;
+	} else {
+		flags.current_window_color = settings.window_color;
+	}
+	
+	if (flags.is_night_now == is_state_changed){
+		return;
+	}
+	
+	subscribe_to_time_update_service();
+	
+	set_window_color(flags.current_window_color);
+	update_bar();
+	
+	flags.is_night_now = is_state_changed;
+	
 }
 
 void update_time_minutes(struct tm* current_time, TimeUnits units_changed){
@@ -510,17 +511,11 @@ void update_time_minutes(struct tm* current_time, TimeUnits units_changed){
 }
 
 void update_time_seconds(struct tm* current_time, TimeUnits units_changed){
+	static char delimiter[] = {':', ' '};
 	update_time_routine(current_time);
 	
-	if (current_time -> tm_sec % 2){
-		snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d:%02d", current_time->tm_hour, current_time->tm_min);
-	}
-	
-	else {
-		snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d %02d", current_time->tm_hour, current_time->tm_min);
-	}
-	
-	
+	snprintf(time_text_buffer, sizeof(time_text_buffer), "%02d%c%02d", current_time->tm_hour, delimiter[current_time -> tm_sec % 2], current_time->tm_min);
+
 	text_layer_set_text(time_text, time_text_buffer);
 	
 	if (!current_time -> tm_hour){
@@ -528,7 +523,7 @@ void update_time_seconds(struct tm* current_time, TimeUnits units_changed){
 	}
 }
 
-inline void update_bluetooth_text(){
+void update_bluetooth_text(){
 	if (settings.show_bluetooth_text){
 		if (settings.show_last_disconnect_time && !flags.is_bluetooth_connected){
 			struct tm * current_time;
@@ -549,23 +544,26 @@ inline void update_bluetooth_text(){
 	}
 }
 
+void update_bluetooth_icon(){
+	gbitmap_destroy(bluetooth_icon); 
+	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
+	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
+	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+}
+
 void update_bluetooth_connection(bool is_connected){
+	flags.is_bluetooth_connected = is_connected;
+	
 	if ((flags.vibes_allowed) && settings.vibe_bluetooth_state_change && (!flags.is_night_now || settings.night_mode_vibe_on_event)){
 		vibes_long_pulse();
 	}
-		
-	flags.is_bluetooth_connected = is_connected;
-	
-	update_bluetooth_text();
 	
 	if (!flags.is_bluetooth_connected){
 		app_timer_cancel(is_receiving_data);
 	}
 		
-	gbitmap_destroy(bluetooth_icon); 
-	bluetooth_icon = gbitmap_create_with_resource(bluetooth_icons[flags.current_window_color][flags.is_bluetooth_connected]); 
-	bitmap_layer_set_bitmap(bluetooth_icon_layer, bluetooth_icon);
-	layer_mark_dirty((Layer *)bluetooth_icon_layer);
+	update_bluetooth_icon();
+	update_bluetooth_text();
 }
 
 void animate_battery_on_charge(){
@@ -588,65 +586,75 @@ void animate_battery_on_charge(){
 		return;
 	}	
 	
-	update_battery_state(battery_state_service_peek());
+	update_battery_icon();
 }
 
-void update_battery_state(BatteryChargeState battery_state){
-	flags.is_charging = battery_state.is_charging;
-	flags.battery_percents = battery_state.charge_percent;
-	
+void update_battery_text(){
 	if (settings.show_battery_text){
-		snprintf(battery_text_buffer, sizeof(battery_text_buffer), "%d%%", battery_state.charge_percent);
+		snprintf(battery_text_buffer, sizeof(battery_text_buffer), "%d%%", flags.battery_percents);
 		text_layer_set_text(battery_text, battery_text_buffer);
 	} else {
 		text_layer_set_text(battery_text, EMPTY_STRING);
 	}
 	
-	if (battery_state.is_charging && (battery_state.charge_percent < 100)  ){
+	if (flags.is_charging && (flags.battery_percents < 100)  ){
 		animate_battery_on_charge();
 		return;
 	}
-	
+}
+
+void update_battery_icon(){
 	gbitmap_destroy(battery_icon); 
-	if ( (battery_state.is_plugged) && (battery_state.charge_percent == 100)) {
+	if ( (flags.is_plugged) && (flags.battery_percents == 100)) {
 		battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][11]);
 	} else {
-		battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][battery_state.charge_percent / 10]); 
+		battery_icon = gbitmap_create_with_resource(battery_icons[flags.current_window_color][flags.battery_percents / 10]); 
 	}
 	bitmap_layer_set_bitmap(battery_icon_layer, battery_icon);
 	layer_mark_dirty((Layer *)battery_icon_layer);
+}
+
+void update_battery_state(BatteryChargeState battery_state){
+	flags.is_charging = battery_state.is_charging;
+	flags.battery_percents = battery_state.charge_percent;
+	flags.is_plugged = battery_state.is_plugged;
 	
+	update_battery_text();
+	update_battery_icon();
 }
 
 void update_date(struct tm* current_time, TimeUnits units_changed){
 	TextLayer * weekday_text_current = top_date_text;
 	TextLayer * date_text_current = bottom_date_text;
 	
-	if (settings.date_style == WEEKDAY_BELOW_DATE_STYLE){
-		weekday_text_current = top_date_text;
-		date_text_current = bottom_date_text;
+	switch(settings.date_style){
+		case WEEKDAY_ABOVE_DATE_STYLE:
+			date_text_current = top_date_text;
+			weekday_text_current = bottom_date_text;
+		break;
+		
+		case WEEKDAY_BELOW_DATE_STYLE:
+			weekday_text_current = top_date_text;
+			date_text_current = bottom_date_text;
+		break;	
 	}
 	
-	if (settings.date_style == WEEKDAY_ABOVE_DATE_STYLE){
-		date_text_current = top_date_text;
-		weekday_text_current = bottom_date_text;
-	}
-	
-	text_layer_set_text(weekday_text_current, weekday_names[settings.language][current_time->tm_wday]);
-	
-	if (settings.date_format == DD_MM_YYYY_DATE_FORMAT){
-		snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d.%02d.%d", current_time->tm_mday, current_time->tm_mon + 1, current_time->tm_year + 1900);
-	}
-	
-	if (settings.date_format == DD_MMMM_DATE_FORMAT){
-		snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d %s", current_time->tm_mday, month_names[settings.language][current_time->tm_mon]);
-	}
-	
-	if (settings.date_format == MM_DD_YYYY_DATE_FORMAT){
-	snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d/%02d/%04d", 1 + current_time->tm_mon, current_time->tm_mday, 1900 + current_time->tm_year);
+	switch(settings.date_format){
+		case DD_MM_YYYY_DATE_FORMAT:
+			snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d.%02d.%d", current_time->tm_mday, current_time->tm_mon + 1, current_time->tm_year + 1900);
+		break;
+		
+		case DD_MMMM_DATE_FORMAT:
+			snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d %s", current_time->tm_mday, month_names[settings.language][current_time->tm_mon]);
+		break;
+		
+		case MM_DD_YYYY_DATE_FORMAT:
+			snprintf(date_text_buffer, sizeof(date_text_buffer), "%02d/%02d/%04d", 1 + current_time->tm_mon, current_time->tm_mday, 1900 + current_time->tm_year);
+		break;	
 	}
 	
 	text_layer_set_text(date_text_current, date_text_buffer);
+	text_layer_set_text(weekday_text_current, weekday_names[settings.language][current_time->tm_wday]);
 }
 
 inline void update_additional_info(){
