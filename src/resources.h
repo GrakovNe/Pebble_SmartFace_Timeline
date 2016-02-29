@@ -51,6 +51,7 @@
 #define BLINK_COLON_KEY                    22
 #define NIGHT_MODE_BLINK_COLON_KEY         23
 
+#define STATE_WAS_CHANGED                  30
 #define NEVER_REQUEST_DATA                 30
 
 static const uint32_t battery_icons[2][12] = {

@@ -51,7 +51,9 @@
             },
             {
                 "file": "images/battery_100_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_100_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
@@ -63,16 +65,9 @@
                 "type": "font"
             },
             {
-                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
+                "characterRegex": "[0-9%!STEHIKLNO:]",
                 "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_14",
-                "targetPlatforms": null,
-                "type": "font"
-            },
-            {
-                "characterRegex": "[0-9 :]",
-                "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_37",
+                "name": "IMAGINE_FONT_12",
                 "targetPlatforms": null,
                 "type": "font"
             },
@@ -84,195 +79,264 @@
                 "type": "font"
             },
             {
-                "characterRegex": "[0-9%!STEHIKLNO]",
+                "characterRegex": "[0-9 :]",
                 "file": "fonts/imagineFont.ttf",
-                "name": "IMAGINE_FONT_12",
+                "name": "IMAGINE_FONT_37",
+                "targetPlatforms": null,
+                "type": "font"
+            },
+            {
+                "characterRegex": "[ -~ \u0410-\u042f \u0430-\u044f\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]",
+                "file": "fonts/imagineFont.ttf",
+                "name": "IMAGINE_FONT_14",
                 "targetPlatforms": null,
                 "type": "font"
             },
             {
                 "file": "images/updating_now_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "UPDATING_NOW_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/updating_Err_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "UPDATING_ERR_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/bluetooth_NO_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BLUETOOTH_NO_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/bluetooth_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BLUETOOTH_YES_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_Full_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_FULL_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_90_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_90_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_80_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_80_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_70_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_70_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_60_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_60_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_50_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_50_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_40_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_40_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_30_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_30_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_20_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_20_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_10_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_10_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_0_inverted.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_0_INVERTED",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/updating_now_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "UPDATING_NOW_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/updating_Err_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "UPDATING_ERR_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/bluetooth_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BLUETOOTH_YES_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/bluetooth_NO_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BLUETOOTH_NO_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_Full_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_FULL_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_100_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_100_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_90_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_90_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_80_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_80_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_70_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_70_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_60_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_60_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_50_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_50_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_40_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_40_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_30_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_30_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_20_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_20_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_10_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_10_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
             {
                 "file": "images/battery_0_normal.png",
+                "memoryFormat": "1Bit",
                 "name": "BATTERY_0_NORMAL",
+                "spaceOptimization": "memory",
                 "targetPlatforms": null,
                 "type": "bitmap"
             }
