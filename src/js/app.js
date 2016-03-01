@@ -178,7 +178,7 @@ function readPersistSettings(){
 	}
 	
 	if (!topAdditionalInfoURL){
-		topAdditionalInfoURL = "http://grakovne.org/pebble/smartface_timeline/scripts/current_weather.php" + "?language=" + "0" + "&location=" + "Omsk" + "&weather_units=" + "C";
+		topAdditionalInfoURL = "http://grakovne.org/pebble/smartface_timeline/scripts/open_weather.php?language=0&location=Omsk&weather_units=C";
 	}
 	
 	if (!bottomAdditionalInfoURL){
@@ -369,7 +369,6 @@ Pebble.addEventListener("webviewclosed",
 	  localStorage.setItem(blinkColonKey, configuration.blinkColon);
 	  localStorage.setItem(nightModeBlinkColonKey, configuration.nightModeBlinkColon);
 	  
-	 
 	  readPersistSettings();
 	  getAdditionalInfo();
 	  sendSettings();
