@@ -117,7 +117,6 @@ void request_data_from_phone(){
     	app_message_outbox_begin(&iter);
     	dict_write_uint8(iter, ASK_DATA_FROM_PHONE_INFO, 0);
     	app_message_outbox_send();
-		
 	}
 }
 
