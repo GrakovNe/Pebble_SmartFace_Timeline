@@ -515,7 +515,9 @@ void update_time_seconds(struct tm* current_time, TimeUnits units_changed){
 		update_date(current_time, SECOND_UNIT);
 	}
 	
-	update_time_routine(current_time);
+	if ( (!current_time -> tm_sec) || (flags.is_state_changed == STATE_WAS_CHANGED) ){
+		update_time_routine(current_time);
+	}
 }
 
 void update_date(struct tm* current_time, TimeUnits units_changed){
@@ -667,6 +669,8 @@ inline void subscribe_to_time_update_service(){
 }
 
 void initialization(void) {
+	flags.is_state_changed = STATE_WAS_CHANGED;
+	
 	/*Reading settings*/
 	read_persist_settings();
 	
