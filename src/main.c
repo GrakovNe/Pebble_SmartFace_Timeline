@@ -14,9 +14,11 @@ extern TextLayer *bottom_additional_info_text;
 
 extern BitmapLayer *bluetooth_icon_layer;
 extern BitmapLayer *battery_icon_layer;
+extern BitmapLayer *unread_message_layer;
 
 extern GBitmap *bluetooth_icon;
 extern GBitmap *battery_icon;
+extern GBitmap *unread_message_icon;
 
 struct {
 	int language;
@@ -51,6 +53,7 @@ struct {
 	int battery_percents;
 	int hourly_vibes_allowed;
 	int is_state_changed;
+	int is_unread_messages;
 } flags;
 
 char top_additional_info_buffer    [27];
@@ -79,6 +82,7 @@ inline void subscribe_to_time_update_service(void);
 
 void update_battery_text(void);
 void update_battery_icon(void);
+void update_unread_message_icon(void);
 inline void update_bar(void);
 
 void update_bluetooth_icon(void);
@@ -291,6 +295,9 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 	
 	flags.vibes_allowed = 1;
 	subscribe_to_time_update_service();
+	
+	flags.is_unread_messages = 0;
+	update_unread_message_icon();
 }
 
 inline void update_bar(){
@@ -630,6 +637,19 @@ void update_battery_icon(){
 	layer_mark_dirty((Layer *)battery_icon_layer);
 }
 
+void update_unread_message_icon(){
+	if (!flags.is_unread_messages){
+		gbitmap_destroy(unread_message_icon);
+		bitmap_layer_set_bitmap(unread_message_layer, unread_message_icon);
+		layer_mark_dirty((Layer *)unread_message_layer);
+		return;
+	}
+	
+	unread_message_icon = gbitmap_create_with_resource(unread_message_icons[flags.current_window_color]);
+	bitmap_layer_set_bitmap(unread_message_layer, unread_message_icon);
+	layer_mark_dirty((Layer *)unread_message_layer);
+}
+
 void update_battery_state(BatteryChargeState battery_state){
 	flags.is_charging = battery_state.is_charging;
 	flags.battery_percents = battery_state.charge_percent;
@@ -704,6 +724,10 @@ void initialization(void) {
 	
 	app_message_open(256, 64);
 	flags.vibes_allowed = 1;
+	
+	/*debug part*/
+	flags.is_unread_messages = 1;
+	update_unread_message_icon();
 }
 
 int main(void) {

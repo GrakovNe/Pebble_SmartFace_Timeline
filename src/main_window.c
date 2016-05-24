@@ -15,9 +15,11 @@ TextLayer *bottom_additional_info_text;
 
 BitmapLayer *bluetooth_icon_layer;
 BitmapLayer *battery_icon_layer;
+BitmapLayer *unread_message_layer;
 
 GBitmap *bluetooth_icon;
 GBitmap *battery_icon;
+GBitmap *unread_message_icon;
 
 GFont bluetooth_text_font;
 GFont battery_text_font;
@@ -35,6 +37,10 @@ void create_icons(int window_color){
 	
 	battery_icon_layer = bitmap_layer_create(GRect(127, 2, 16, 16));
   	layer_add_child(window_get_root_layer(main_window), bitmap_layer_get_layer(battery_icon_layer));
+	
+	
+	unread_message_layer = bitmap_layer_create(GRect(64, 15, 16, 16));
+	layer_add_child(window_get_root_layer(main_window), bitmap_layer_get_layer(unread_message_layer));
 }
 
 void create_texts(int text_size, int window_color){
@@ -162,6 +168,7 @@ void destroy_window(){
 	gbitmap_destroy(battery_icon); 
 	bitmap_layer_destroy(bluetooth_icon_layer);
 	bitmap_layer_destroy(battery_icon_layer);
+	bitmap_layer_destroy(unread_message_layer);
 
 	window_destroy(main_window);
 }

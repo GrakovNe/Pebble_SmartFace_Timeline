@@ -107,6 +107,11 @@ static const uint32_t bluetooth_icons[2][2] = {
 	}
 };
 
+static const uint32_t unread_message_icons[2] = {
+	RESOURCE_ID_UNREAD_MESSAGE_ICON_NORMAL,
+	RESOURCE_ID_UNREAD_MESSAGE_ICON_INVERTED
+};
+
 static const char weekday_names[3][7][24] = {
 	{
 		"SUNDAY",
