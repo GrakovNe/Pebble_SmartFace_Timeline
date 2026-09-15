@@ -16,7 +16,7 @@
 #include "settings.h"
 
 #define CLAMP(value, lo, hi) ((value) < (lo) ? (lo) : ((value) > (hi) ? (hi) : (value)))
-#define STATUS_ICON_SIZE 20
+#define STATUS_ICON_SIZE 32
 #define BATTERY_FRAME_MS 800
 #define BATTERY_LEVELS 11  // 0, 10, ..., 100 percent; +1 == "full" icon
 
@@ -180,11 +180,11 @@ static void window_load(Window *window) {
   layer_add_child(root, bitmap_layer_get_layer(s_battery_icon_layer));
 
   s_bluetooth_text_layer = create_text_layer(
-    root, GRect(4 + STATUS_ICON_SIZE + 2, 7, w / 2 - STATUS_ICON_SIZE, 16), s_font_status,
+    root, GRect(4 + STATUS_ICON_SIZE + 2, 14, w / 2 - STATUS_ICON_SIZE, 16), s_font_status,
     GTextAlignmentLeft);
 
   s_battery_text_layer = create_text_layer(
-    root, GRect(w / 2, 7, w / 2 - STATUS_ICON_SIZE - 6, 16), s_font_status,
+    root, GRect(w / 2, 14, w / 2 - STATUS_ICON_SIZE - 6, 16), s_font_status,
     GTextAlignmentRight);
 
   s_date_above_layer = create_text_layer(root, GRect(0, 48, w, 22), s_font_date,
