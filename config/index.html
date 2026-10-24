@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!--
+  Configuration page for the SmartFace TimeLine Pebble watchface.
+  Opened by the Pebble phone app in a webview (see src/pkjs/index.js).
+  Prefills the form from the `state` URL query parameter and returns the
+  chosen settings via the `pebblejs://close#<json>` protocol.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartFace TimeLine — Settings</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0;
+         padding: 16px; background: #f2f2f7; color: #1c1c1e; }
+  @media (prefers-color-scheme: dark) { body { background: #000; color: #ebebf5; } }
+  h1 { font-size: 1.2rem; margin: 4px 0 16px; }
+  fieldset { border: 1px solid #8e8e93; border-radius: 10px; margin: 0 0 14px; padding: 10px 12px; }
+  legend { font-weight: 600; padding: 0 6px; }
+  label { display: flex; justify-content: space-between; align-items: center;
+          gap: 12px; padding: 8px 0; min-height: 28px; }
+  label > span { flex: 1; }
+  select, input[type="number"], input[type="text"] {
+    font-size: 1rem; padding: 6px 8px; border-radius: 8px; border: 1px solid #8e8e93;
+    background: #fff; color: #1c1c1e; max-width: 60%;
+  }
+  @media (prefers-color-scheme: dark) { select, input { background: #1c1c1e; color: #ebebf5; } }
+  input[type="checkbox"] { width: 24px; height: 24px; }
+  .buttons { display: flex; gap: 10px; margin-top: 18px; }
+  button { flex: 1; font-size: 1.1rem; padding: 12px; border: 0; border-radius: 10px; }
+  #save { background: #0a84ff; color: #fff; }
+  #cancel { background: #8e8e93; color: #fff; }
+  .hint { font-size: .8rem; opacity: .7; margin: -4px 0 8px; }
+</style>
+</head>
+<body>
+<h1>SmartFace TimeLine</h1>
+
+<fieldset>
+  <legend>Look</legend>
+  <label><span>Language</span>
+    <select id="language">
+      <option value="0">English</option>
+      <option value="1">Русский</option>
+      <option value="2">Deutsch</option>
+    </select></label>
+  <label><span>Background</span>
+    <select id="windowColor">
+      <option value="0">White</option>
+      <option value="1">Black</option>
+    </select></label>
+  <label><span>Big time text</span>
+    <input type="checkbox" id="timeTextSize"></label>
+  <label><span>Blinking colon</span>
+    <input type="checkbox" id="blinkColon"></label>
+</fieldset>
+
+<fieldset>
+  <legend>Date</legend>
+  <label><span>Format</span>
+    <select id="dateFormat">
+      <option value="0">31.12.2026</option>
+      <option value="1">31 December</option>
+      <option value="2">12/31/2026</option>
+    </select></label>
+  <label><span>Weekday</span>
+    <select id="dateStyle">
+      <option value="0">Above the date</option>
+      <option value="1">Below the date</option>
+    </select></label>
+</fieldset>
+
+<fieldset>
+  <legend>Status line</legend>
+  <label><span>Battery percentage</span>
+    <input type="checkbox" id="showBatteryText"></label>
+  <label><span>Bluetooth state text</span>
+    <input type="checkbox" id="showBluetoothText"></label>
+  <label><span>Show last disconnect time</span>
+    <input type="checkbox" id="showLastDisconnect"></label>
+</fieldset>
+
+<fieldset>
+  <legend>Additional strings</legend>
+  <p class="hint">Plain text (max 28 chars) or an http(s) URL — the first
+     non-empty line of the page is shown.</p>
+  <label><span>Top string</span>
+    <input type="text" id="topString" maxlength="28"></label>
+  <label><span>Bottom string</span>
+    <input type="text" id="bottomString" maxlength="28"></label>
+  <label><span>Update frequency</span>
+    <select id="dataUpdateFreq">
+      <option value="1">Hourly</option>
+      <option value="2">Every 30 min</option>
+      <option value="3">Every 20 min</option>
+      <option value="4">Every 15 min</option>
+      <option value="6">Every 10 min</option>
+      <option value="12">Every 5 min</option>
+      <option value="30">Never</option>
+    </select></label>
+</fieldset>
+
+<fieldset>
+  <legend>Vibration</legend>
+  <label><span>Every hour</span>
+    <input type="checkbox" id="vibeHourly"></label>
+  <label><span>On Bluetooth connect/disconnect</span>
+    <input type="checkbox" id="vibeBluetooth"></label>
+</fieldset>
+
+<fieldset>
+  <legend>Night mode</legend>
+  <label><span>Enabled</span>
+    <input type="checkbox" id="nightModeEnabled"></label>
+  <label><span>From</span>
+    <input type="number" id="nightModeStart" min="0" max="1439" step="1"></label>
+  <label><span>To</span>
+    <input type="number" id="nightModeEnd" min="0" max="1439" step="1"></label>
+  <p class="hint">Minutes since midnight: 22:00 = 1320, 07:00 = 420.</p>
+  <label><span>Invert colors</span>
+    <input type="checkbox" id="nightModeInvert"></label>
+  <label><span>Blink colon</span>
+    <input type="checkbox" id="nightModeBlinkColon"></label>
+  <label><span>Update additional strings</span>
+    <input type="checkbox" id="nightModeUpdateInfo"></label>
+  <label><span>Vibrate on events</span>
+    <input type="checkbox" id="nightModeVibeEvent"></label>
+  <label><span>Vibrate every hour</span>
+    <input type="checkbox" id="nightModeVibeHourly"></label>
+</fieldset>
+
+<div class="buttons">
+  <button id="cancel" type="button">Cancel</button>
+  <button id="save" type="button">Save</button>
+</div>
+
+<script>
+'use strict';
+
+var KEYS = [
+  'language', 'windowColor', 'timeTextSize', 'blinkColon',
+  'dateFormat', 'dateStyle',
+  'showBatteryText', 'showBluetoothText', 'showLastDisconnect',
+  'topString', 'bottomString', 'dataUpdateFreq',
+  'vibeHourly', 'vibeBluetooth',
+  'nightModeEnabled', 'nightModeStart', 'nightModeEnd', 'nightModeInvert',
+  'nightModeBlinkColon', 'nightModeUpdateInfo', 'nightModeVibeEvent',
+  'nightModeVibeHourly'
+];
+
+var DEFAULTS = {
+  language: 0, windowColor: 0, timeTextSize: 0, blinkColon: 0,
+  dateFormat: 1, dateStyle: 1,
+  showBatteryText: 1, showBluetoothText: 1, showLastDisconnect: 0,
+  topString: 'SmartFace', bottomString: 'GrakovNe', dataUpdateFreq: 3,
+  vibeHourly: 1, vibeBluetooth: 1,
+  nightModeEnabled: 1, nightModeStart: 1320, nightModeEnd: 420,
+  nightModeInvert: 1, nightModeBlinkColon: 0, nightModeUpdateInfo: 1,
+  nightModeVibeEvent: 1, nightModeVibeHourly: 0
+};
+
+function element(key) { return document.getElementById(key); }
+
+function isCheckbox(key) {
+  return element(key).type === 'checkbox';
+}
+
+function applyState(state) {
+  KEYS.forEach(function (key) {
+    var value = (typeof state[key] === 'undefined') ? DEFAULTS[key] : state[key];
+    var node = element(key);
+    if (isCheckbox(key)) {
+      node.checked = Number(value) !== 0;
+    } else {
+      node.value = value;
+    }
+  });
+}
+
+function collectState() {
+  var state = {};
+  KEYS.forEach(function (key) {
+    var node = element(key);
+    state[key] = isCheckbox(key) ? (node.checked ? 1 : 0) :
+      (key === 'topString' || key === 'bottomString') ? node.value : Number(node.value);
+  });
+  return state;
+}
+
+function closeWith(state) {
+  window.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(state));
+}
+
+function initialLoad() {
+  var state = {};
+  try {
+    var raw = new URLSearchParams(window.location.search).get('state');
+    if (raw) { state = JSON.parse(raw); }
+  } catch (e) { /* prefill with defaults */ }
+  applyState(state);
+}
+
+document.getElementById('save').addEventListener('click', function () {
+  closeWith(collectState());
+});
+document.getElementById('cancel').addEventListener('click', function () {
+  window.location = 'pebblejs://close';
+});
+
+initialLoad();
+</script>
+</body>
+</html>

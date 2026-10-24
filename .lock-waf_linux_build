@@ -1,0 +1,10 @@
+argv = ['/home/pebble/.pebble-sdk/SDKs/current/sdk-core/pebble/waf', 'configure']
+config_cmd = 'configure'
+environ = {'PATH': '/var/tmp/pebble-sdk/SDKs/4.9.169/toolchain/moddable-tools:/home/pebble/.pebble-sdk/SDKs/4.9.169/toolchain/arm-none-eabi/bin:/opt/uv-tools/pebble-tool/lib/python3.13/site-packages/pebble_tool/commands/sdk:/home/pebble/.pebble-sdk/SDKs/4.9.169/toolchain/bin:/opt/uv-tools/pebble-tool/bin:/home/pebble/.local/bin:/opt/uv-tools/pebble-tool/bin:/home/pebble/.local/bin:/opt/uv-tools/pebble-tool/bin:/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'HOSTNAME': '853efecb216e', 'UV_TOOL_DIR': '/opt/uv-tools', 'HOME': '/home/pebble', 'PEBBLE_HOME': '/home/pebble/.pebble-sdk', 'SDL_VIDEODRIVER': 'dummy', 'SDL_AUDIODRIVER': 'dummy', 'LC_CTYPE': 'C.UTF-8', 'MODDABLE': '/var/tmp/pebble-sdk/SDKs/4.9.169/toolchain/moddable', 'PYTHONHOME': '/home/pebble/.pebble-sdk/SDKs/current/.venv', 'PYTHONPATH': '/opt/uv-tools/pebble-tool/bin:/home/pebble/.local/share/uv/python/cpython-3.13.3-linux-x86_64-gnu/lib/python313.zip:/home/pebble/.local/share/uv/python/cpython-3.13.3-linux-x86_64-gnu/lib/python3.13:/home/pebble/.local/share/uv/python/cpython-3.13.3-linux-x86_64-gnu/lib/python3.13/lib-dynload:/opt/uv-tools/pebble-tool/lib/python3.13/site-packages', 'NODE_PATH': '/home/pebble/.pebble-sdk/SDKs/current/sdk-core/../node_modules', 'NOCLIMB': '1'}
+files = ['/project/wscript']
+hash = b"`:\xa2'v?l6\xady\x99h\xdc\xe4D\x8c"
+launch_dir = '/project'
+options = {'colors': 'auto', 'jobs': 8, 'keep': 0, 'verbose': 0, 'zones': '', 'profile': 0, 'pdb': 0, 'whelp': 0, 'version': False, 'out': '', 'top': '', 'no_lock_in_run': '', 'no_lock_in_out': '', 'no_lock_in_top': '', 'prefix': '/usr/local', 'bindir': None, 'libdir': None, 'progress_bar': 0, 'targets': '', 'files': '', 'destdir': '', 'force': False, 'distcheck_args': None, 'debug': False, 'no_groups': False, 'sandbox': False, 'timestamp': None}
+out_dir = '/project/build'
+run_dir = '/project'
+top_dir = '/project'
